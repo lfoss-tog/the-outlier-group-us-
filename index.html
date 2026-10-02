@@ -11,6 +11,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Libre+Franklin:wght@400..800&family=Mrs+Saint+Delafield&display=swap">
 <link rel="stylesheet" href="css/style.css">
+<!-- Google Analytics 4 (Consent Mode): everything starts "denied". js/analytics.js loads Google's tag only after the visitor allows Analytics. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag("consent", "default", { analytics_storage: "denied", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" });
+</script>
 </head>
 <body>
 
@@ -86,5 +92,6 @@
 <script src="js/nda.js"></script>
 <script src="js/app.js"></script>
 <script src="js/assistant.js"></script>
+<script src="js/analytics.js"></script>
 </body>
 </html>

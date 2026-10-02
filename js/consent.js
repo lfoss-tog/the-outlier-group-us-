@@ -15,7 +15,7 @@
     { key: "preferences", name: "Preferences",
       desc: "Remembers your light or dark theme, your recent Client Portal searches (for the \"Your searches\" charts), and your Assistant conversation during a visit. If this is off, they last only until you leave the page." },
     { key: "analytics", name: "Analytics",
-      desc: "Lets us record anonymous site activity to improve our service: Portfolio filters used, Assistant questions, brochure downloads, and Investment Calculator runs. Nothing is sold or used for advertising." }
+      desc: "Lets us record anonymous site activity to improve our service, using Google Analytics and our own activity log: pages and properties viewed, Portfolio searches and filters, Assistant questions, brochure downloads, form submissions, and Investment Calculator runs. No names, emails or phone numbers are sent to Google. Nothing is sold or used for advertising." }
   ];
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const listeners = [];
