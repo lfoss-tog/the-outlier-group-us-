@@ -17,7 +17,7 @@
      │  loaded from Google and events are written to the        │
      │  browser console with the prefix [OG analytics].         │
      └──────────────────────────────────────────────────────────┘ */
-  var GA_MEASUREMENT_ID = "G-XXXXXXXXXX";
+  var GA_MEASUREMENT_ID = "G-L8EGNCQK9G";
 
   var PLACEHOLDER = "G-XXXXXXXXXX";
   var LIVE = GA_MEASUREMENT_ID !== PLACEHOLDER && /^G-[A-Z0-9]{4,}$/.test(GA_MEASUREMENT_ID);
