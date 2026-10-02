@@ -66,7 +66,7 @@ class Component extends DCLogic {
       const img = /^image\//.test(f.type || "") || /^(jpe?g|png|webp|gif)$/.test(ext);
       let url = ""; if (img) { try { url = URL.createObjectURL(f); } catch (e) {} }
       const cat = img ? "" : Component.guessCat(f.name);
-      add.push({ id: "u" + Date.now() + Math.random().toString(36).slice(2, 6), kind: img ? "image" : "doc", name: f.name, size: f.size, url, conv: img && ext !== "jpg" && ext !== "jpeg", category: cat, web: cat === "Brochure / Flyer" || cat === "Floor Plan" });
+      add.push({ id: "u" + Date.now() + Math.random().toString(36).slice(2, 6), kind: img ? "image" : "doc", name: f.name, size: f.size, url, conv: img && ext !== "jpg" && ext !== "jpeg", category: cat, web: cat === "Brochure / Flyer" || cat === "Floor Plan", file: f });
     });
     if (add.length) this.setFiles(this.state.files.concat(add), { log: this.addLog(add.length + (add.length === 1 ? " file uploaded" : " files uploaded")) });
     if (bad.length) this.flash("Not added: " + bad.join(", "));
@@ -231,15 +231,15 @@ class Component extends DCLogic {
     const active = (fd) => !fd.onlyIf || (fd.onlyIf === "sale" ? sale : lease);
     const sharedHidden = (si, fd) => fd.shared && si === 4 && sale;   // shared occupancy fields asked once, under Sale
     const BADGE = {
-      web: ["Website", "font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7FC4FF;background:rgba(47,128,237,.14);border-radius:999px;padding:2px 8px"],
-      int: ["Internal", "font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#AFC3D6;background:rgba(143,175,200,.14);border-radius:999px;padding:2px 8px"],
-      res: ["Restricted", "font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#F2C94C;background:rgba(242,201,76,.14);border-radius:999px;padding:2px 8px"],
-      nda: ["NDA", "font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#FF9B9B;background:rgba(255,107,107,.16);border-radius:999px;padding:2px 8px"]
+      web: ["Website", "font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#141414;background:rgba(20,20,20,0.112);border-radius:999px;padding:2px 8px"],
+      int: ["Internal", "font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#5A5752;background:rgba(20,20,20,0.126);border-radius:999px;padding:2px 8px"],
+      res: ["Restricted", "font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#5A5752;background:rgba(20,20,20,0.07);border-radius:999px;padding:2px 8px"],
+      nda: ["NDA", "font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#141414;background:rgba(20,20,20,0.096);border-radius:999px;padding:2px 8px"]
     };
     const visOf = (fd) => conf && fd.conf && fd.vis === "web" ? "nda" : fd.vis;
     const valOf = (key, fd) => fd.calc ? autoVals[key] : (v[key] || "");
     const isEmpty = (key, fd) => !String(valOf(key, fd)).trim();
-    const segOn = "background:#2F80ED;color:#fff", segOff = "background:transparent;color:#C9D6E3";
+    const segOn = "background:#141414;color:#fff", segOff = "background:transparent;color:#3A3835";
     // required / issues
     const issuesRaw = [];
     SECTIONS.forEach((sec, si) => sec.fields.forEach(([key, label, fd]) => { if (fd.req && active(fd) && !sharedHidden(si, fd) && isEmpty(key, fd)) issuesRaw.push({ step: si + 1, text: label.replace(/ \(.*\)$/, "") + " is required" }); }));
@@ -262,23 +262,23 @@ class Component extends DCLogic {
         yes: () => this.setVal(key, "Yes"), no: () => this.setVal(key, "No"),
         yesStyle: val === "Yes" ? segOn : segOff, noStyle: val === "No" ? segOn : segOff,
         span: "grid-column: span " + (fd.span || 1),
-        inStyle: (fd.auto ? "border-color:rgba(47,128,237,.5);background:rgba(47,128,237,.08);" : "") + (missing ? "border-color:#FF6B6B;" : "") + (kind === A ? "min-height:" + (fd.span === 3 ? 120 : 96) + "px;" : ""),
-        hasHint: !!(missing || fd.hint), hint: missing ? "Required" : fd.hint || "", hintStyle: "margin:0;font-size:12.5px;color:" + (missing ? "#FF8A8A" : "#8FAFC8") };
+        inStyle: (fd.auto ? "border-color:rgba(20,20,20,0.4);background:rgba(20,20,20,0.064);" : "") + (missing ? "border-color:#141414;" : "") + (kind === A ? "min-height:" + (fd.span === 3 ? 120 : 96) + "px;" : ""),
+        hasHint: !!(missing || fd.hint), hint: missing ? "Required" : fd.hint || "", hintStyle: "margin:0;font-size:12.5px;color:" + (missing ? "#141414" : "#5A5752") };
     });
     const steps = SECTIONS.map((s, i) => ({ label: s.short })).concat([{ label: "Review & Submit" }]).map((s, i) => {
       const n = i + 1, cur = n === step, bad = n < 9 ? issuesAt(n).length : issuesRaw.length, visited = n < step;
       return { label: s.label, pick: go(n), mark: visited && !bad ? "✓" : String(n),
         sub: n === 4 && !sale ? "Not for sale · skipped" : n === 5 && !lease ? "Not for lease · skipped" : bad ? bad + (bad === 1 ? " item needs attention" : " items need attention") : cur ? "In progress" : visited ? "Complete" : "Not started",
-        rowStyle: "display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:7px 10px;border-radius:12px;border:0;cursor:pointer;color:#F0F4F8;font:inherit;" + (cur ? "background:rgba(47,128,237,.16);box-shadow:inset 0 0 0 1px rgba(47,128,237,.45)" : "background:transparent"),
-        numStyle: "flex-shrink:0;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;" + (cur ? "background:#2F80ED;color:#fff" : visited && !bad ? "background:rgba(52,168,108,.2);color:#7FD8A6" : bad ? "background:rgba(242,201,76,.18);color:#F2C94C" : "background:rgba(143,175,200,.14);color:#8FAFC8"),
-        subStyle: "font-size:11.5px;color:" + (bad ? "#F2C94C" : "#8FAFC8") };
+        rowStyle: "display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:7px 10px;border-radius:12px;border:0;cursor:pointer;color:#141414;font:inherit;" + (cur ? "background:rgba(20,20,20,0.128);box-shadow:inset 0 0 0 1px rgba(20,20,20,0.36)" : "background:transparent"),
+        numStyle: "flex-shrink:0;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;" + (cur ? "background:#141414;color:#fff" : visited && !bad ? "background:rgba(20,20,20,0.12);color:#141414" : bad ? "background:rgba(20,20,20,0.09);color:#5A5752" : "background:rgba(20,20,20,0.126);color:#5A5752"),
+        subStyle: "font-size:11.5px;color:" + (bad ? "#5A5752" : "#5A5752") };
     });
     const WF = ["Draft", "In Review", "Approved", "Excel Created", "Flyer Created", "Ready for Review", "Published"];
     const failAt = S.fail === "excel" ? 3 : S.fail === "flyer" ? 4 : -1;
     const wfSteps = WF.map((label, i) => {
       const failed = i === failAt, cur = i === S.wf && !failed, done = i < S.wf || (failAt > -1 && i < failAt);
       return { label: failed ? (S.fail === "excel" ? "Excel Failed" : "Flyer Failed") : label, arrow: i < WF.length - 1,
-        style: "font-size:12px;padding:5px 10px;border-radius:999px;white-space:nowrap;" + (failed ? "background:rgba(255,107,107,.18);color:#FF9B9B;border:1px solid #FF6B6B" : cur ? (i === 6 ? "background:rgba(52,168,108,.2);color:#7FD8A6;border:1px solid rgba(52,168,108,.5)" : "background:rgba(47,128,237,.2);color:#fff;border:1px solid #2F80ED") : done ? "color:#7FD8A6;border:1px solid rgba(52,168,108,.3)" : "color:#8FAFC8;border:1px solid rgba(143,175,200,.2)") };
+        style: "font-size:12px;padding:5px 10px;border-radius:999px;white-space:nowrap;" + (failed ? "background:#FFFFFF;color:#141414;border:1.5px dashed #141414" : cur ? (i === 6 ? "background:#141414;color:#FFFFFF;border:1px solid #141414" : "background:#141414;color:#FFFFFF;border:1px solid #141414") : done ? "color:#141414;border:1px solid rgba(20,20,20,.4)" : "color:#8A8782;border:1px solid rgba(20,20,20,.16)") };
     });
     const JOBS = [["approve", "Natasha approves · data frozen (rev 1)"], ["excel", "Excel file from 1325 W Cass template"], ["flyer", "Canva flyer from " + (sale && !lease ? "Sale" : "Lease") + " template"], ["review", "Team review email sent"]];
     const xlsxName = "Listing Intake - " + (v.address || "Property Address") + ".xlsx";
@@ -295,8 +295,8 @@ class Component extends DCLogic {
         : st === "failed" ? (k === "excel" ? "Failed after 3 tries: master template not found. Natasha + solutions@ notified." : "Failed after 3 tries: photo frame PHOTO_3 has no image. Agent, Natasha + solutions@ notified.")
         : st === "running" ? "Working…" : S.wf >= 2 ? "Waiting for the previous step" : "Waiting · starts only after Natasha approves";
       return { label, sub, mark: st === "done" ? "✓" : st === "failed" ? "!" : st === "running" ? "…" : "·",
-        dotStyle: "flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;" + (st === "done" ? "background:rgba(52,168,108,.2);color:#7FD8A6" : st === "failed" ? "background:rgba(255,107,107,.2);color:#FF9B9B" : st === "running" ? "background:rgba(47,128,237,.25);color:#fff" : "background:rgba(143,175,200,.12);color:#8FAFC8"),
-        subStyle: "font-size:11.5px;line-height:1.4;color:" + (st === "failed" ? "#FF9B9B" : st === "done" ? "#9FB8CC" : "#8FAFC8") }; });
+        dotStyle: "flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;" + (st === "done" ? "background:rgba(20,20,20,0.12);color:#141414" : st === "failed" ? "background:rgba(20,20,20,0.12);color:#141414" : st === "running" ? "background:#141414;color:#FFFFFF" : "background:rgba(20,20,20,0.108);color:#5A5752"),
+        subStyle: "font-size:11.5px;line-height:1.4;color:" + (st === "failed" ? "#141414" : st === "done" ? "#5A5752" : "#5A5752") }; });
     const addrFull = [v.address, v.unit].filter(Boolean).join(", ");
     const typ = v.type || "Commercial";
     const title = conf ? "Confidential " + typ + " Opportunity" : (v.name || v.address || "Untitled listing");
@@ -310,13 +310,13 @@ class Component extends DCLogic {
       const fl = s.fields.filter(([, , fd]) => active(fd) && !sharedHidden(si, fd));
       const filled = fl.filter(([key, , fd]) => !isEmpty(key, fd)).length, bad = issuesAt(si + 1);
       const skipped = (si === 3 && !sale) || (si === 4 && !lease);
-      if (s.upload) { const ni = (S.files || []).filter((f) => f.kind === "image").length, nd = (S.files || []).length - ni; return { label: s.title, go: go(si + 1), count: ni + " photos · " + nd + " documents", state: bad.length ? "! " + bad[0].text : "✓ Ready", style: "font-size:13px;text-align:right;max-width:330px;color:" + (bad.length ? "#F2C94C" : "#7FD8A6") }; }
+      if (s.upload) { const ni = (S.files || []).filter((f) => f.kind === "image").length, nd = (S.files || []).length - ni; return { label: s.title, go: go(si + 1), count: ni + " photos · " + nd + " documents", state: bad.length ? "! " + bad[0].text : "✓ Ready", style: "font-size:13px;text-align:right;max-width:330px;color:" + (bad.length ? "#5A5752" : "#141414") }; }
       return { label: s.title, go: go(si + 1), count: skipped ? "Skipped" : filled + " of " + fl.length + " answered",
         state: skipped ? "—" : bad.length ? "✕ " + bad[0].text : "✓ Ready",
-        style: "font-size:13px;text-align:right;max-width:330px;color:" + (skipped ? "#8FAFC8" : bad.length ? (bad[0].warn ? "#F2C94C" : "#FF8A8A") : "#7FD8A6") };
+        style: "font-size:13px;text-align:right;max-width:330px;color:" + (skipped ? "#5A5752" : bad.length ? (bad[0].warn ? "#5A5752" : "#141414") : "#141414") };
     });
     const issues = issuesRaw.map((i) => ({ where: "Section " + i.step, text: i.text, go: go(i.step),
-      style: "display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%;min-height:44px;padding:9px 12px;border-radius:10px;cursor:pointer;font:inherit;font-size:13px;" + (i.warn ? "background:rgba(242,201,76,.08);border:1px solid rgba(242,201,76,.35);color:#F6E3A6" : "background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.4);color:#FFD2D2") }));
+      style: "display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%;min-height:44px;padding:9px 12px;border-radius:10px;cursor:pointer;font:inherit;font-size:13px;" + (i.warn ? "background:rgba(20,20,20,0.04);border:1px solid rgba(20,20,20,0.175);color:#3A3835" : "background:rgba(20,20,20,0.048);border:1px solid rgba(20,20,20,0.24);color:#141414") }));
     const wf = S.wf, LABELS = steps.map((s) => s.label);
     const hl = String(v.highlights || "").split(/\n/).filter(Boolean);
     const pvFacts = conf
@@ -332,14 +332,14 @@ class Component extends DCLogic {
     const photoList = imgs.map((f, i) => ({ name: f.name, url: f.url || "", hasUrl: !!f.url, noUrl: !f.url,
       webName: (conf ? "private" : slug) + "-" + (i + 1) + ".jpg", meta: f.name + " · " + kb(f.size) + (f.conv ? " · converted to JPG" : ""),
       tag: i === 0 ? "Cover" : i < 5 ? (conf ? "NDA" : "Website") : "Internal (over 5)",
-      tagStyle: i === 0 ? tagCss("#2F80ED", "#fff") : i < 5 ? tagCss("rgba(14,22,32,.85)", conf ? "#FF9B9B" : "#7FC4FF") : tagCss("rgba(14,22,32,.85)", "#AFC3D6"),
+      tagStyle: i === 0 ? tagCss("#141414", "#fff") : i < 5 ? tagCss("rgba(255,255,255,.92)", conf ? "#141414" : "#141414") : tagCss("rgba(255,255,255,.92)", "#5A5752"),
       coverLabel: i === 0 ? "Cover photo" : "Make cover",
-      coverBtnStyle: "min-height:34px;padding:0 12px;border-radius:999px;font:inherit;font-size:12px;cursor:pointer;" + (i === 0 ? "border:1px solid #2F80ED;background:rgba(47,128,237,.18);color:#fff" : "border:1px solid rgba(143,175,200,.35);background:transparent;color:#C9D6E3"),
+      coverBtnStyle: "min-height:34px;padding:0 12px;border-radius:999px;font:inherit;font-size:12px;cursor:pointer;" + (i === 0 ? "border:1px solid #141414;background:#141414;color:#FFFFFF" : "border:1px solid rgba(20,20,20,0.315);background:transparent;color:#3A3835"),
       makeCover: () => { if (i) this.setFiles([f].concat(files.filter((x) => x.id !== f.id))); }, remove: dropFile(f.id) }));
     const setDoc = (id, patch) => this.setFiles(files.map((x) => x.id === id ? Object.assign({}, x, patch) : x));
     const docList = docs.map((f) => { const ext = (f.name.split(".").pop() || "").toUpperCase().slice(0, 4);
       return { name: f.name, ext, meta: kb(f.size) + " · " + (f.web ? (conf ? "released after NDA" : "downloadable on the property page") : "Drive (private)"), category: f.category,
-        extStyle: "flex-shrink:0;width:44px;text-align:center;font-size:11px;font-weight:600;padding:5px 0;border-radius:8px;background:" + (ext === "PDF" ? "rgba(255,107,107,.16);color:#FF9B9B" : /^XLS|CSV/.test(ext) ? "rgba(52,168,108,.18);color:#7FD8A6" : "rgba(47,128,237,.16);color:#7FC4FF"),
+        extStyle: "flex-shrink:0;width:44px;text-align:center;font-size:11px;font-weight:600;padding:5px 0;border-radius:8px;background:" + (ext === "PDF" ? "rgba(20,20,20,0.096);color:#141414" : /^XLS|CSV/.test(ext) ? "rgba(20,20,20,0.108);color:#141414" : "rgba(20,20,20,0.128);color:#141414"),
         setCategory: (e) => setDoc(f.id, { category: e.target.value }), setWeb: () => setDoc(f.id, { web: true }), setInt: () => setDoc(f.id, { web: false }),
         webStyle: "font-size:12.5px;min-height:32px;" + (f.web ? segOn : segOff), intStyle: "font-size:12.5px;min-height:32px;" + (!f.web ? segOn : segOff), remove: dropFile(f.id) }; });
     const footerHint = S.fail ? "Nothing was lost or duplicated. Fix the cause, then retry. It continues from the failed step." : wf === 1 ? "Waiting for Natasha. She was emailed a review link." : (wf >= 2 && wf <= 4) ? "Approved. Creating the Excel file and Canva flyer automatically…" : wf === 5 ? "Ready for review: check the website preview, Excel file and flyer, then publish." : wf === 6 ? "Live on the website. Edits create a new revision; Excel and flyer are regenerated after re-approval." : step === 9 ? (issuesRaw.filter((i) => !i.warn).length ? "Fix the items marked ✕ before submitting." : "Ready to submit.") : "Saved automatically every 30 seconds.";
@@ -356,7 +356,7 @@ class Component extends DCLogic {
       dragOver: (e) => { e.preventDefault(); if (!S.drag) this.setState({ drag: true }); },
       dragLeave: () => this.setState({ drag: false }),
       dropFiles: (e) => { e.preventDefault(); this.setState({ drag: false }); this.addFiles(e.dataTransfer && e.dataTransfer.files); },
-      dropStyle: "position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:30px;border-radius:16px;cursor:pointer;border:1.5px dashed " + (S.drag ? "#6FB1FF;background:rgba(47,128,237,.16)" : "rgba(111,177,255,.45);background:rgba(47,128,237,.05)"),
+      dropStyle: "position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:30px;border-radius:16px;cursor:pointer;border:1.5px dashed " + (S.drag ? "#141414;background:rgba(20,20,20,0.128)" : "rgba(20,20,20,0.36);background:rgba(20,20,20,0.04)"),
       pvHasImg: !conf && !!(imgs[0] && imgs[0].url), pvImg: imgs[0] && imgs[0].url ? imgs[0].url : "",
       bWeb: BADGE.web[1], bInt: BADGE.int[1], bRes: BADGE.res[1], bNda: BADGE.nda[1],
       title, slug, dealText, countyRegion: v.county ? v.county + " → " + (autoVals.region || "?") : "—",
@@ -379,10 +379,10 @@ class Component extends DCLogic {
       reset: () => this.setState({ step: 1, wf: 0, fail: null, running: null, failSim: "None", preview: false, toast: "", log: ["Draft created from the CRE Listing Intake Form"], vals: Component.sample(), files: Component.sampleFiles() }),
       preview: S.preview, openPreview: () => this.setState({ preview: true }), closePreview: () => this.setState({ preview: false }),
       isConf: conf, pvHeading: conf ? "Locked off-market card and teaser" : "Listing card and property page",
-      pvStatus: conf ? "Off-Market" : (v.status || "Available"), pvPillStyle: conf ? "background:#D64545;color:#fff" : v.status === "Pending" ? "background:#9A6B00;color:#fff" : "background:#1E8A5A;color:#fff",
+      pvStatus: conf ? "Off-Market" : (v.status || "Available"), pvPillStyle: conf ? "background:#141414;color:#fff" : v.status === "Pending" ? "background:#5A5752;color:#fff" : "background:#141414;color:#fff",
       pvType: typ, pvLoc: conf ? (v.city || "") + " · " + (v.county || "") + " County" : [addrFull, [v.city, v.state].filter(Boolean).join(", ") + " " + (v.zip || "")].filter(Boolean).join(", "),
       pvSpace: conf ? (v.availSF || "—") : [v.unit, v.availSF].filter(Boolean).join(" – ") || "—", pvBldg: v.bldgSF || "—", pvMin: v.minDiv || "—",
-      pvAgent: v.agent || "—", pvBtn: conf ? "Request Access" : "Inquire", pvBtnStyle: "font-size:13px;font-weight:500;padding:8px 14px;border-radius:999px;color:#fff;background:" + (conf ? "#D64545" : "#2F80ED"),
+      pvAgent: v.agent || "—", pvBtn: conf ? "Request Access" : "Inquire", pvBtnStyle: "font-size:13px;font-weight:500;padding:8px 14px;border-radius:999px;color:#fff;background:" + (conf ? "#141414" : "#141414"),
       pvHeadline: (v.headline || "") + (v.idealUses ? " — Ideal for " + v.idealUses.replace(/^ideal for\s*/i, "") : ""),
       pvBody: conf ? "Offered off-market to qualified parties. The exact address, photos, pricing and full brochure unlock after the NDA is signed and approved." : (v.description || "") + (hl.length ? "  Highlights: " + hl.slice(0, 4).join(" · ") : ""),
       pvFacts, hasToast: !!S.toast, toast: S.toast
