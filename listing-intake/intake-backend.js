@@ -66,12 +66,13 @@
   function readDataUrl(file) {
     return new Promise(function (ok, fail) { var r = new FileReader(); r.onload = function () { ok(r.result); }; r.onerror = fail; r.readAsDataURL(file); });
   }
-  function toJpeg(file) {
+  function toJpeg(file, max) {
+    max = max || 1400;
     return readDataUrl(file).then(function (src) {
       return new Promise(function (ok) {
         var img = new Image();
         img.onload = function () {
-          var k = Math.min(1, 1400 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+          var k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas");
           c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
           var g = c.getContext("2d"); g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
           ok(c.toDataURL("image/jpeg", 0.85));
@@ -88,9 +89,12 @@
     return pending.reduce(function (p, f) {
       return p.then(function () {
         var isImg = f.kind === "image";
-        return (isImg ? toJpeg(f.file) : readDataUrl(f.file)).then(function (dataUrl) {
+        return (isImg ? toJpeg(f.file, 1400) : readDataUrl(f.file)).then(function (dataUrl) {
+          if (!isImg) return [dataUrl, ""];
+          return toJpeg(f.file, 600).then(function (t) { return [dataUrl, t]; });   // small preview for the review sheet
+        }).then(function (pair) {
           return call({ type: "intake", action: "upload_file", listingId: comp.state.listingId,
-            file: { id: f.id, name: isImg ? jpgName(f.name) : f.name, kind: f.kind, category: f.category || "", web: !!f.web, size: f.size, dataUrl: dataUrl } });
+            file: { id: f.id, name: isImg ? jpgName(f.name) : f.name, kind: f.kind, category: f.category || "", web: !!f.web, size: f.size, dataUrl: pair[0], thumbDataUrl: pair[1] } });
         }).then(function (res) {
           if (!res || res.status === "error" || !res.driveId) throw new Error((res && res.message) || "Upload failed: " + f.name);
           comp.setState({ files: (comp.state.files || []).map(function (x) { return x.id === f.id ? Object.assign({}, x, { driveId: res.driveId }) : x; }) });
