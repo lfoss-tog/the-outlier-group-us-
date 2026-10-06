@@ -33,7 +33,7 @@ class Component extends DCLogic {
   }
   static sampleFiles() {
     return [
-      { id: "p1", kind: "image", name: "IMG_2041.png", size: 2400000, conv: true },
+      { id: "p1", kind: "image", name: "IMG_2041.png", size: 2400000 },
       { id: "p2", kind: "image", name: "IMG_2044.jpg", size: 3100000 },
       { id: "p3", kind: "image", name: "IMG_2050.jpg", size: 2800000 },
       { id: "d1", kind: "doc", name: "Floor plan - Unit B.pdf", size: 1200000, category: "Floor Plan", web: true },
@@ -66,7 +66,7 @@ class Component extends DCLogic {
       const img = /^image\//.test(f.type || "") || /^(jpe?g|png|webp|gif)$/.test(ext);
       let url = ""; if (img) { try { url = URL.createObjectURL(f); } catch (e) {} }
       const cat = img ? "" : Component.guessCat(f.name);
-      add.push({ id: "u" + Date.now() + Math.random().toString(36).slice(2, 6), kind: img ? "image" : "doc", name: f.name, size: f.size, url, conv: img && ext !== "jpg" && ext !== "jpeg", category: cat, web: cat === "Brochure / Flyer" || cat === "Floor Plan", file: f });
+      add.push({ id: "u" + Date.now() + Math.random().toString(36).slice(2, 6), kind: img ? "image" : "doc", name: f.name, size: f.size, url, category: cat, web: cat === "Brochure / Flyer" || cat === "Floor Plan", file: f });
     });
     if (add.length) this.setFiles(this.state.files.concat(add), { log: this.addLog(add.length + (add.length === 1 ? " file uploaded" : " files uploaded")) });
     if (bad.length) this.flash("Not added: " + bad.join(", "));
@@ -74,7 +74,7 @@ class Component extends DCLogic {
   }
   static sample() {
     return {
-  name: "", address: "2500 Central Ave", unit: "Unit B", city: "St. Petersburg", state: "FL", zip: "33713", county: "Pinellas", parcel: "",
+  name: "", address: "2500 Central Ave", unit: "Unit B", city: "St. Petersburg", state: "FL", zip: "33713", region: "West Florida", parcel: "",
   type: "Retail", zoning: "CCT-1 (Corridor Commercial Traditional)", demographics: "• [Population, 5-mile]\n• [Median household income]\n• [Traffic count on Central Ave]",
   ownerName: "[Owner name]", ownerEntity: "", ownerEmail: "[owner@email.com]", ownerPhone: "", dmName: "", dmContact: "", commPref: "Email",
   availSF: "1,850 SF", bldgSF: "6,400 SF", minDiv: "900 SF", maxCont: "1,850 SF", land: "0.28 AC", lotDim: "", yearBuilt: "1962", yearReno: "2019", buildings: "1", stories: "1",
@@ -123,19 +123,17 @@ class Component extends DCLogic {
     const ppsfN = sale && num(v.askPrice) && sf ? num(v.askPrice) / sf : 0;
     const grossN = lease ? num(v.baseRent) + num(v.nnn) + num(v.otherExp) : 0;
     const monthlyN = grossN && sf ? grossN * sf / 12 : 0;
-    const REGION = { Pinellas: "West Florida", Hillsborough: "West Florida", Pasco: "West Florida", Hernando: "West Florida", Orange: "East Florida", Brevard: "East Florida", Duval: "North Florida", "Miami-Dade": "South Florida" };
-    const autoVals = { ppsf: ppsfN ? money(ppsfN, 2) : "", grossRent: grossN ? money(grossN, 2) + " PSF" : "", monthlyRent: monthlyN ? money(Math.round(monthlyN)) : "", region: REGION[v.county] || "" };
+    const autoVals = { ppsf: ppsfN ? money(ppsfN, 2) : "", grossRent: grossN ? money(grossN, 2) + " PSF" : "", monthlyRent: monthlyN ? money(Math.round(monthlyN)) : "" };
     const T = "text", A = "area", SEL = "select", YN = "yn";
     const SECTIONS = [
-      { title: "Basic Property & Location Info", short: "Property & Location", desc: "Type the address: city, state, zip, county and region fill in automatically.", fields: [
+      { title: "Basic Property & Location Info", short: "Property & Location", desc: "Type the address, then pick the region the website's filter uses.", fields: [
         ["name", "Property Name", { vis: "web", conf: 1, ph: "Leave blank to use the address" }],
         ["address", "Property Address", { vis: "web", req: 1, conf: 1, span: 2 }],
         ["unit", "Unit / Suite #", { vis: "web", conf: 1, added: 1, hint: "Needed for the website's \"Unit # & Space Available\"." }],
         ["city", "City", { vis: "web", req: 1, auto: 1 }],
         ["state", "State", { vis: "web", auto: 1 }],
         ["zip", "Zip Code", { vis: "web", auto: 1, conf: 1 }],
-        ["county", "County", { vis: "web", req: 1, auto: 1, kind: SEL, opts: ["Pinellas", "Hillsborough", "Pasco", "Hernando", "Orange", "Brevard", "Duval", "Miami-Dade"] }],
-        ["region", "Region", { vis: "web", auto: 1, calc: 1, added: 1, hint: "From county, using the website's region filter." }],
+        ["region", "Region", { vis: "web", req: 1, added: 1, kind: SEL, opts: ["West Florida", "East Florida", "North Florida", "South Florida"], hint: "Used by the website's region filter." }],
         ["parcel", "Parcel Number(s)", { vis: "int", ph: "e.g. 23-31-16-12345-000-0010", hint: "Also used for the duplicate check." }],
         ["type", "Property Type (Retail, Office, Industrial, Medical, Land, Other)", { vis: "web", req: 1, kind: SEL, opts: ["Retail", "Office", "Industrial", "Medical", "Land", "Other"], span: 2 }],
         ["zoning", "Zoning Description", { vis: "web" }],
@@ -219,7 +217,7 @@ class Component extends DCLogic {
         ["signage", "Signage Available? (Yes/No)", { vis: "web", kind: YN }],
         ["confidential", "Confidential Listing? (Y/N — if yes, notes)", { vis: "int", kind: YN, hint: "Yes = off-market: website shows a locked teaser, details released under NDA." }],
         ["channels", "Preferred Marketing Channels", { vis: "int", span: 2 }],
-        ["agent", "Assigned Agent", { vis: "web", req: 1, kind: SEL, opts: ["Laurie Lane", "Joyce Teixeira", "Mackinley Autrey", "Jason Clemmey", "Outlier Solutions Team"] }],
+        ["agent", "Assigned Agent", { vis: "web", req: 1, kind: SEL, opts: ["Laurie Lane", "Joyce Teixeira", "Mackinley Autrey", "Jason Clemmey", "Christopher Delcore", "Outlier Solutions Team"] }],
         ["status", "Listing Status", { vis: "web", req: 1, added: 1, kind: SEL, opts: ["Available", "Pending", "Leased", "Sold"], hint: "Needed for the website's status label." }],
         ["headline", "Headline for Marketing (e.g 2nd Generation Restaurant Space)", { vis: "web", req: 1, span: 2 }],
         ["idealUses", "Ideal Uses", { vis: "web", span: 3, hint: "Shown as \"Ideal for …\" under the headline." }],
@@ -320,7 +318,7 @@ class Component extends DCLogic {
     const wf = S.wf, LABELS = steps.map((s) => s.label);
     const hl = String(v.highlights || "").split(/\n/).filter(Boolean);
     const pvFacts = conf
-      ? [{ k: "Property Type", v: typ }, { k: "Offered For", v: dealText }, { k: "Market", v: (v.city || "") + " · " + (v.county || "") + " County" }, { k: "Address", v: "Released after NDA approval" }, { k: "Pricing", v: "Provided by your advisor" }]
+      ? [{ k: "Property Type", v: typ }, { k: "Offered For", v: dealText }, { k: "Market", v: [v.city, v.region].filter(Boolean).join(" · ") }, { k: "Address", v: "Released after NDA approval" }, { k: "Pricing", v: "Provided by your advisor" }]
       : [{ k: "Status", v: v.status || "Available" }].concat(
           lease ? [{ k: "Base Rent", v: v.baseRent ? v.baseRent + " PSF" : "—" }, { k: "NNN Expense", v: v.nnn ? v.nnn + " PSF" : "—" }, { k: "Total Monthly Rent", v: autoVals.monthlyRent || "—" }, { k: "Lease Type", v: v.leaseType || "—" }] : [],
           sale ? [{ k: "Asking Price", v: v.askPrice || "—" }, { k: "Price / SF", v: autoVals.ppsf || "—" }, { k: "Investment", v: v.investment || "—" }] : [],
@@ -330,7 +328,7 @@ class Component extends DCLogic {
     const dropFile = (id) => () => this.setFiles(files.filter((f) => f.id !== id));
     const tagCss = (bg, fg) => "position:absolute;top:8px;left:8px;background:" + bg + ";color:" + fg;
     const photoList = imgs.map((f, i) => ({ name: f.name, url: f.url || "", hasUrl: !!f.url, noUrl: !f.url,
-      webName: (conf ? "private" : slug) + "-" + (i + 1) + ".jpg", meta: f.name + " · " + kb(f.size) + (f.conv ? " · converted to JPG" : ""),
+      webName: (conf ? "private" : slug) + "-" + (i + 1) + ".jpg", meta: f.name + " · " + kb(f.size),
       tag: i === 0 ? "Cover" : i < 5 ? (conf ? "NDA" : "Website") : "Internal (over 5)",
       tagStyle: i === 0 ? tagCss("#141414", "#fff") : i < 5 ? tagCss("rgba(255,255,255,.92)", conf ? "#141414" : "#141414") : tagCss("rgba(255,255,255,.92)", "#5A5752"),
       coverLabel: i === 0 ? "Cover photo" : "Make cover",
@@ -350,7 +348,7 @@ class Component extends DCLogic {
       showAddrNote: step === 1 && !!v.address, showOwnerNote: step === 2, showConfNote: conf && step !== 2 && step !== 9 && !(sec && sec.upload),
       showSkip: (step === 4 && !sale) || (step === 5 && (!lease || sale)), skipText: step === 4 ? "Marked not for sale, so the sale fields are skipped. Switch to Yes to fill them in." : !lease ? "Marked not for lease, so the lease fields are skipped. Switch to Yes to fill them in." : "Occupancy date, occupancy status, tenants and rent roll were already answered in Sale Details, so they aren't asked twice.",
       photoList, docList, photoCount: imgs.length, docCount: docs.length, noPhotos: !imgs.length, noDocs: !docs.length,
-      photoRule: "First photo is the cover · up to 5 show on the website · converted to web-ready JPG (1400 px)",
+      photoRule: "First photo is the cover · up to 5 show on the website · originals are saved to the property's Drive folder and the best ones are picked for the flyer",
       docCats: ["Brochure / Flyer", "Floor Plan", "Site Plan / Survey", "Rent Roll", "Property Report", "Environmental Report", "Other"],
       pickFiles: (e) => { this.addFiles(e.target.files); try { e.target.value = ""; } catch (x) {} },
       dragOver: (e) => { e.preventDefault(); if (!S.drag) this.setState({ drag: true }); },
@@ -359,7 +357,7 @@ class Component extends DCLogic {
       dropStyle: "position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:30px;border-radius:16px;cursor:pointer;border:1.5px dashed " + (S.drag ? "#141414;background:rgba(20,20,20,0.128)" : "rgba(20,20,20,0.36);background:rgba(20,20,20,0.04)"),
       pvHasImg: !conf && !!(imgs[0] && imgs[0].url), pvImg: imgs[0] && imgs[0].url ? imgs[0].url : "",
       bWeb: BADGE.web[1], bInt: BADGE.int[1], bRes: BADGE.res[1], bNda: BADGE.nda[1],
-      title, slug, dealText, countyRegion: v.county ? v.county + " → " + (autoVals.region || "?") : "—",
+      title, slug, dealText, regionText: v.region || "—",
       ppsf: autoVals.ppsf || "—", grossPsf: autoVals.grossRent || "—", monthly: autoVals.monthlyRent || "—",
       issues, issueCount: issues.length, noIssues: !issues.length, log: S.log, review, nWeb, nInt, nRes, fileName,
       back: () => this.setState({ step: Math.max(1, step - 1) }), next: () => this.setState({ step: Math.min(9, step + 1) }),
@@ -380,7 +378,7 @@ class Component extends DCLogic {
       preview: S.preview, openPreview: () => this.setState({ preview: true }), closePreview: () => this.setState({ preview: false }),
       isConf: conf, pvHeading: conf ? "Locked off-market card and teaser" : "Listing card and property page",
       pvStatus: conf ? "Off-Market" : (v.status || "Available"), pvPillStyle: conf ? "background:#141414;color:#fff" : v.status === "Pending" ? "background:#5A5752;color:#fff" : "background:#141414;color:#fff",
-      pvType: typ, pvLoc: conf ? (v.city || "") + " · " + (v.county || "") + " County" : [addrFull, [v.city, v.state].filter(Boolean).join(", ") + " " + (v.zip || "")].filter(Boolean).join(", "),
+      pvType: typ, pvLoc: conf ? [v.city, v.region].filter(Boolean).join(" · ") : [addrFull, [v.city, v.state].filter(Boolean).join(", ") + " " + (v.zip || "")].filter(Boolean).join(", "),
       pvSpace: conf ? (v.availSF || "—") : [v.unit, v.availSF].filter(Boolean).join(" – ") || "—", pvBldg: v.bldgSF || "—", pvMin: v.minDiv || "—",
       pvAgent: v.agent || "—", pvBtn: conf ? "Request Access" : "Inquire", pvBtnStyle: "font-size:13px;font-weight:500;padding:8px 14px;border-radius:999px;color:#fff;background:" + (conf ? "#141414" : "#141414"),
       pvHeadline: (v.headline || "") + (v.idealUses ? " — Ideal for " + v.idealUses.replace(/^ideal for\s*/i, "") : ""),

@@ -2,7 +2,7 @@
    Listing Intelligence: backend connector for Create a Listing
    Demo mode: does nothing (the page simulates every step).
    Live mode (Agent Portal on Apps Script): saves drafts, uploads
-   photos and documents to the listing's private Drive folder,
+   original photos and documents to the property's private Drive folder,
    submits for review, and loads a listing opened from an email link.
    Contract: see BACKEND-CONTRACT.md in this package.
    ════════════════════════════════════════════════════════════ */
@@ -62,39 +62,49 @@
   }
   function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
 
-  /* ── File uploads: photos become web-ready JPGs (max 1400 px) before upload ── */
+  /* ── File uploads: originals go to the property's private Drive folder, unchanged ── */
   function readDataUrl(file) {
     return new Promise(function (ok, fail) { var r = new FileReader(); r.onload = function () { ok(r.result); }; r.onerror = fail; r.readAsDataURL(file); });
   }
-  function toJpeg(file, max) {
-    max = max || 1400;
-    return readDataUrl(file).then(function (src) {
-      return new Promise(function (ok) {
-        var img = new Image();
-        img.onload = function () {
-          var k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas");
-          c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-          var g = c.getContext("2d"); g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
-          ok(c.toDataURL("image/jpeg", 0.85));
-        };
-        img.onerror = function () { ok(src); };
-        img.src = src;
-      });
+  /* Photo quality measured in the browser (on a small copy) so the backend can pick the best photos:
+     size in pixels, sharpness (variance of the Laplacian), brightness, contrast and a 64-bit
+     difference hash for spotting near-duplicates. Nothing here changes the uploaded file. */
+  function analyzePhoto(file) {
+    return new Promise(function (ok) {
+      var url; try { url = URL.createObjectURL(file); } catch (e) { ok(null); return; }
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var W = img.naturalWidth, H = img.naturalHeight, k = Math.min(1, 256 / Math.max(W, H));
+          var w = Math.max(9, Math.round(W * k)), h = Math.max(8, Math.round(H * k));
+          var c = document.createElement("canvas"); c.width = w; c.height = h;
+          var g = c.getContext("2d"); g.drawImage(img, 0, 0, w, h);
+          var d = g.getImageData(0, 0, w, h).data, n = w * h, Y = new Float32Array(n), sum = 0, sq = 0, i;
+          for (i = 0; i < n; i++) { var y = 0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2]; Y[i] = y; sum += y; sq += y * y; }
+          var mean = sum / n, sd = Math.sqrt(Math.max(0, sq / n - mean * mean)), ls = 0, ls2 = 0, m = 0;
+          for (var yy = 1; yy < h - 1; yy++) for (var xx = 1; xx < w - 1; xx++) { var p = yy * w + xx, L = Y[p - 1] + Y[p + 1] + Y[p - w] + Y[p + w] - 4 * Y[p]; ls += L; ls2 += L * L; m++; }
+          var lm = m ? ls / m : 0, lv = m ? ls2 / m - lm * lm : 0;
+          var c2 = document.createElement("canvas"); c2.width = 9; c2.height = 8;
+          var g2 = c2.getContext("2d"); g2.drawImage(img, 0, 0, 9, 8);
+          var e = g2.getImageData(0, 0, 9, 8).data, bits = "", hex = "";
+          for (var r = 0; r < 8; r++) for (var q = 0; q < 8; q++) { var a = (r * 9 + q) * 4, b = a + 4; bits += (e[a] + e[a + 1] + e[a + 2]) > (e[b] + e[b + 1] + e[b + 2]) ? "1" : "0"; }
+          for (var s = 0; s < 64; s += 4) hex += parseInt(bits.slice(s, s + 4), 2).toString(16);
+          ok({ w: W, h: H, sharp: Math.round(lv), bright: Math.round(mean / 255 * 1000) / 1000, contrast: Math.round(sd / 255 * 1000) / 1000, hash: hex });
+        } catch (x) { ok(null); } finally { try { URL.revokeObjectURL(url); } catch (x) {} }
+      };
+      img.onerror = function () { try { URL.revokeObjectURL(url); } catch (x) {} ok(null); };
+      img.src = url;
     });
   }
-  function jpgName(name) { return String(name).replace(/\.[^.]+$/, "") + ".jpg"; }
 
   function uploadPending(comp) {
     var pending = (comp.state.files || []).filter(function (f) { return f.file && !f.driveId; });
     return pending.reduce(function (p, f) {
       return p.then(function () {
         var isImg = f.kind === "image";
-        return (isImg ? toJpeg(f.file, 1400) : readDataUrl(f.file)).then(function (dataUrl) {
-          if (!isImg) return [dataUrl, ""];
-          return toJpeg(f.file, 600).then(function (t) { return [dataUrl, t]; });   // small preview for the review sheet
-        }).then(function (pair) {
+        return Promise.all([readDataUrl(f.file), isImg ? analyzePhoto(f.file) : Promise.resolve(null)]).then(function (r) {
           return call({ type: "intake", action: "upload_file", listingId: comp.state.listingId,
-            file: { id: f.id, name: isImg ? jpgName(f.name) : f.name, kind: f.kind, category: f.category || "", web: !!f.web, size: f.size, dataUrl: pair[0], thumbDataUrl: pair[1] } });
+            file: { id: f.id, name: f.name, kind: f.kind, category: f.category || "", web: !!f.web, size: f.size, dataUrl: r[0], metrics: r[1] } });
         }).then(function (res) {
           if (!res || res.status === "error" || !res.driveId) throw new Error((res && res.message) || "Upload failed: " + f.name);
           comp.setState({ files: (comp.state.files || []).map(function (x) { return x.id === f.id ? Object.assign({}, x, { driveId: res.driveId }) : x; }) });
