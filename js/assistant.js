@@ -14,39 +14,129 @@
   const PAGES = {
     "#portfolio": "Our Portfolio", "#portal": "Client Portal (off-market first)", "#services": "Services", "#sectors": "Sectors",
     "#why-outlier": "Why Outlier?", "#our-team": "Our Team", "#insights": "Market Insights", "#contact": "Contact / Schedule a Consultation",
-    "#submit-property": "Submit a Property", "#home": "Home"
+    "#submit-property": "Submit a Property", "#careers": "Careers", "#calculator": "Investment Calculator", "#privacy": "Privacy Policy", "#home": "Home"
   };
   const SUGGESTED = ["What services do you offer?", "How can you help me find a property?", "What properties are available?", "How can I submit a property?", "How do off-market listings work?"];
   const state = { msgs: [], busy: false };
   try { state.msgs = JSON.parse(sessionStorage.getItem("og-chat") || "[]"); } catch (e) {}
   const save = () => { if (window.OGConsent && !OGConsent.allowed("preferences")) return; try { sessionStorage.setItem("og-chat", JSON.stringify(state.msgs.slice(-30))); } catch (e) {} };
 
-  /* ── Approved knowledge (built from the site's own data files) ── */
+  /* ── Approved knowledge: built at run time from the site's own data and pages ──
+     Everything published on the site goes into a searchable library of passages: company,
+     services, sectors, values, FAQ, client profiles, every team member's full bio, every listing's
+     full details, past transactions, every Market Insights article, and the text of the Why Outlier,
+     Services, Sectors, Careers, Client Portal, Submit a Property, Contact and Privacy pages.
+     Off-market listings only ever contribute their public teaser (the site never holds their
+     address or price). For each question the most relevant passages are sent with a compact
+     index of everything, so answers stay current with whatever the site shows. */
   const avail = () => LISTINGS.filter((l) => !l.offMarket && l.status === "Available");
-  function knowledge() {
-    const L = LISTINGS.filter((l) => !l.past).map((l) => l.offMarket
-      ? `- [${l.title}](#property-${l.id}) | OFF-MARKET (NDA required, address confidential) | ${l.typeLabel || l.type} | for ${l.deal} | ${l.region} | space ${l.space} | building ${l.building}`
-      : `- [${l.title}](#property-${l.id}) | ${l.status}${l.statusNote ? " (" + l.statusNote + ")" : ""} | ${l.typeLabel || l.type} | for ${l.deal} | ${l.address}, ${l.city} | space ${l.space} | building ${l.building} | ${(l.facts || []).map((f) => f.join(": ")).join("; ")}`).join("\n");
-    return [
-      `COMPANY: ${COMPANY.name} — "${COMPANY.tagline}" A Commercial Real Estate firm that focuses on brokering investment assets in Florida, founded 2016. Phone ${COMPANY.phone}, email ${COMPANY.email}, office ${COMPANY.address}, brokerage license ${COMPANY.license}. Quality over quantity; vets advisors and clients; transparency, simplicity, deals that make sense.`,
-      `SERVICES: ${SERVICES.map((s) => `${s.name}: ${s.desc}`).join(" | ")}`,
-      `SECTORS: ${SECTORS.map((s) => `${s.name}: ${s.desc}`).join(" | ")}`,
-      `VALUES: ${VALUES.map((v) => `${v.name}: ${v.desc}`).join(" | ")}`,
-      `TEAM (each has a profile page): ${TEAM.map((t) => `${t.name} — ${t.role}, profile #team-${t.slug}, email ${t.email}${t.phone ? ", phone " + t.phone : ""}${t.bio && t.bio[0] ? ". " + t.bio[0].slice(0, 220) : ""}`).join(" | ")}`,
-      `CLIENT PORTAL: at #portal. Visitors pick Buyer / Owner-User, Investor, Tenant, Landlord or Developer, set budget, location, timing, type of building and size, then press Find My Opportunities. The Client Portal is a personalized search focused on confidential off-market opportunities: results list matching OFF-MARKET properties first (each requires a signed NDA approved by our team before the address, photos and pricing are shared), then matching ON-MARKET properties (no NDA needed), each with a match %, plus Portfolio Intelligence charts. OUR PORTFOLIO (#portfolio) is the complete property showcase: every property, including available, off-market (shown locked), pending, leased, sold and past listings. Both use the same property data. The portal also has an Investment Calculator at #calculator (NOI, cap rate, cash flow, cash-on-cash ROI, projected returns). To see an off-market property's address, photos, pricing and brochure: open its page, Request Access, review and sign the NDA online. Our team reviews each request and approves or denies it; approved clients get an email link that unlocks the property details and full brochure.`,
-      `SUBMIT A PROPERTY: owners/landlords use #submit-property (address, type, size, sale or lease) or call ${COMPANY.phone}.`,
-      `FAQ: ${FAQ.map((f) => `Q: ${f.q} A: ${f.a}`).join(" ")}`,
-      `LISTINGS (link format [name](#property-id)):\n${L}`,
-      `MARKET INSIGHTS (articles at #insights):\n${INSIGHTS.map((a) => `- [${a.title}](#insight-${a.slug}) (${a.date}, ${a.category}): ${a.excerpt}`).join("\n")}`
-    ].join("\n\n");
+  const agentLine = (key) => { const a = (typeof AGENTS !== "undefined" && AGENTS[key]) || null; return a ? `${a.name} (${a.role}), ${a.email}${a.phone ? ", " + a.phone : ""}` : ""; };
+  const txt = (x) => String(x == null ? "" : x).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const sent = (s) => { s = txt(s); return s && !/[.!?:]$/.test(s) ? s + "." : s; };
+  let CORPUS = null;
+  function corpus() {
+    if (CORPUS) return CORPUS;
+    const C = [], add = (kind, title, link, parts) => { const body = parts.filter(Boolean).map(sent).join(" "); if (body) C.push({ kind, title, link, text: body }); };
+    try { add("company", COMPANY.name, "#why-outlier", [`${COMPANY.name}: ${COMPANY.tagline}`, "A Commercial Real Estate firm that focuses on brokering investment assets in Florida, founded 2016", `Phone ${COMPANY.phone}`, `Email ${COMPANY.email}`, `Office ${COMPANY.address}`, COMPANY.license && `Brokerage license ${COMPANY.license}`]); } catch (e) {}
+    try { SERVICES.forEach((x) => add("service", "Service: " + x.name, "#services", [`${x.name}: ${x.desc}`])); } catch (e) {}
+    try { SECTORS.forEach((x) => add("sector", "Sector: " + x.name, "#sectors", [`${x.name}: ${x.desc}`])); } catch (e) {}
+    try { VALUES.forEach((x) => add("value", "Value: " + x.name, "#why-outlier", [`${x.name}: ${x.desc}`])); } catch (e) {}
+    try { FAQ.forEach((x) => add("faq", "FAQ: " + x.q, "#why-outlier", [`Question: ${x.q}`, `Answer: ${x.a}`])); } catch (e) {}
+    try { CLIENT_PROFILES.forEach((x) => add("profile", "Client Portal profile: " + x.type, "#portal", [`${x.type} (${x.deal}): ${x.need}`])); } catch (e) {}
+    try { TEAM.forEach((t) => add("team", `${t.name}, ${t.role}`, "#team-" + t.slug, [`${t.name} is ${t.role} at The Outlier Group`, `Email ${t.email}`, t.phone && `Phone ${t.phone}`].concat(t.bio || [], (t.facts || []).map((f) => f.join(": ")), t.focus && t.focus.length ? [`Focus areas: ${t.focus.join(", ")}`] : []))); } catch (e) {}
+    try {
+      LISTINGS.forEach((l) => {
+        if (l.offMarket) return add("listing", `${l.title} (off-market)`, "#property-" + l.id, [`${l.title} is an OFF-MARKET ${l.typeLabel || l.type} opportunity for ${l.deal}`, `Area: ${l.region || l.city}`, l.space && `Space: ${l.space}`, l.building && `Building: ${l.building}`, l.teaser, "The address, photos and pricing are confidential and released only after an approved NDA (Request Access on the property page, or the Client Portal)", agentLine(l.agent) && `Advisor: ${agentLine(l.agent)}`]);
+        add(l.past ? "past" : "listing", `${l.title}${l.past ? " (past transaction)" : ""}`, "#property-" + l.id, [
+          `${l.title}: ${l.headline || ""}`, l.subhead, `Status: ${l.status}${l.statusNote ? " (" + l.statusNote + ")" : ""}`, `${l.type} for ${l.deal}`,
+          `Address: ${[l.address, l.city].filter(Boolean).join(", ")}`, l.county && `County: ${l.county}`, l.space && `Space: ${l.space}`, l.building && `Building: ${l.building}`]
+          .concat((l.facts || []).map((f) => f.join(": ")), l.highlights && l.highlights.length ? [`Highlights: ${l.highlights.join("; ")}`] : [], [l.desc, agentLine(l.agent) && `Advisor: ${agentLine(l.agent)}`]));
+      });
+    } catch (e) {}
+    try {
+      INSIGHTS.forEach((a) => {
+        const paras = (a.blocks || []).map((b) => b.p || b.h || b.q || (b.ul || b.ol || []).join("; ")).filter((x) => typeof x === "string" && x.trim());
+        const head = `Market Insights article "${a.title}" by ${a.author || "The Outlier Group"}, ${a.date} (${a.category})`;
+        let part = [], len = 0, n = 0;
+        const flush = () => { if (part.length) { add("insight", a.title + (n ? " (cont.)" : ""), "#insight-" + a.slug, [head].concat(part)); n++; part = []; len = 0; } };
+        (paras.length ? paras : [a.excerpt]).forEach((x) => { if (len + x.length > 2400) flush(); part.push(x); len += x.length; });
+        flush();
+      });
+    } catch (e) {}
+    try {
+      const cj = (o) => typeof o === "string" ? o : Array.isArray(o) ? o.map(cj).join("; ") : o && typeof o === "object" ? Object.values(o).map(cj).join(" ") : "";
+      add("page", "Careers", "#careers", [cj(CAREERS)]);
+    } catch (e) {}
+    const pages = { "why-outlier": "Why Outlier?", services: "Services", sectors: "Sectors", portal: "Client Portal", "submit-property": "Submit a Property", contact: "Contact", privacy: "Privacy Policy", careers: "Careers page" };
+    Object.keys(pages).forEach((k) => {
+      try {
+        const t = window.OG && OG.pageText ? OG.pageText(k) : "";
+        for (let i = 0; i < t.length; i += 2400) add("page", pages[k] + (i ? " (cont.)" : ""), "#" + k, [t.slice(i, i + 2400)]);
+      } catch (e) {}
+    });
+    // term statistics for ranking
+    C.forEach((c) => { c.terms = new Set(words(c.title + " " + c.text)); });
+    const df = {}; C.forEach((c) => c.terms.forEach((w) => { df[w] = (df[w] || 0) + 1; }));
+    CORPUS = { chunks: C, df, n: C.length };
+    return CORPUS;
   }
-  const SYSTEM = () => `You are the Outlier Assistant on The Outlier Group's website, a Florida commercial real estate brokerage. Be professional, warm and concise (2-5 short sentences, or a short list).
-Answer ONLY from the APPROVED CONTENT below. Never invent listings, prices, availability, people, or policies. Never reveal or guess an off-market property's address or price.
+  const STOP = new Set("the and for with that this from your you are our what who how can does have has was were will would about into than then them they their there here when where which why also any all not but get got its it's tell show give need want like just some more most much many very over under per info information please thanks hello does did do is be of to in on at by an a or as we us me my i".split(" "));
+  function words(s) { return String(s || "").toLowerCase().replace(/[’']/g, "").split(/[^a-z0-9$]+/).filter((w) => w.length > 2 && !STOP.has(w)).map((w) => w.length > 4 ? w.replace(/(ies|es|s)$/, (m) => m === "ies" ? "y" : "") : w); }
+  function rank(q) {
+    const K = corpus(), qw = [...new Set(words(q))];
+    const idf = (w) => Math.log(1 + K.n / (1 + (K.df[w] || 0)));
+    return K.chunks.map((c) => {
+      let s = 0; qw.forEach((w) => { if (c.terms.has(w)) s += idf(w); });
+      const tl = c.title.toLowerCase(); qw.forEach((w) => { if (tl.includes(w)) s += 0.6 * idf(w); });
+      return { c, s };
+    }).filter((x) => x.s > 0).sort((a, b) => b.s - a.s);
+  }
+  function siteIndex() {
+    const L = LISTINGS.filter((l) => !l.past).map((l) => l.offMarket ? `- [${l.title}](#property-${l.id}) | OFF-MARKET (NDA) | ${l.typeLabel || l.type} | ${l.deal} | ${l.region || l.city} | ${l.space}` : `- [${l.title}](#property-${l.id}) | ${l.status} | ${l.type} | ${l.deal} | ${l.city} | ${l.space}`).join("\n");
+    const P = LISTINGS.filter((l) => l.past).map((l) => `${l.title} (${l.status})`).join("; ");
+    return [`COMPANY: ${COMPANY.name}, phone ${COMPANY.phone}, email ${COMPANY.email}, office ${COMPANY.address}.`,
+      `SERVICES: ${SERVICES.map((s) => s.name).join(", ")}. SECTORS: ${SECTORS.map((s) => s.name).join(", ")}.`,
+      `TEAM: ${TEAM.map((t) => `[${t.name}](#team-${t.slug}) (${t.role}, ${t.email})`).join("; ")}.`,
+      `CURRENT LISTINGS:\n${L}`, P ? `PAST TRANSACTIONS: ${P}.` : "",
+      `MARKET INSIGHTS ARTICLES: ${INSIGHTS.map((a) => `[${a.title}](#insight-${a.slug}) (${a.date})`).join("; ")}.`].filter(Boolean).join("\n");
+  }
+  function knowledge(history) {
+    const users = (history || []).filter((m) => m.role === "user").map((m) => m.text);
+    const last = users[users.length - 1] || "", earlier = users.slice(-4, -1).join(" ");
+    const hits = rank(last + " " + last + " " + earlier);   // the latest question counts double
+    const BUDGET = 38000, out = []; let used = 0;
+    for (const h of hits) { const block = `### ${h.c.title} (link ${h.c.link})\n${h.c.text}`; if (used + block.length > BUDGET) continue; out.push(block); used += block.length; if (out.length >= 14) break; }
+    return `SITE INDEX (everything published):\n${siteIndex()}\n\nRELEVANT PASSAGES (full text from the site):\n${out.join("\n\n") || "(none matched; use the index)"}`;
+  }
+  const SYSTEM = (history) => `You are the Outlier Assistant on The Outlier Group's website, a Florida commercial real estate brokerage. Be professional, warm and concise (2-5 short sentences, or a short list).
+Answer ONLY from the APPROVED CONTENT below, which is the website's current published content. Use specific details from the passages (names, sizes, rents, zoning, dates, experience) when they answer the question. Never invent listings, prices, availability, people, or policies. Never reveal or guess an off-market property's address or price.
 If the answer isn't in the content, say you don't have that information and direct the visitor to [Contact](#contact) or ${COMPANY.phone}.
-Link to relevant pages using markdown links with these internal targets only: ${Object.keys(PAGES).join(", ")}, #property-<id>, #insight-<slug>. Never link to other websites.
+Link to relevant pages using markdown links with these internal targets only: ${Object.keys(PAGES).join(", ")}, #team-<slug>, #property-<id>, #insight-<slug>. Never link to other websites.
 APPROVED CONTENT:
-${knowledge()}`;
+${knowledge(history)}`;
 
+  /* Built-in answer from the site's text (used when the AI isn't available): best matching sentences */
+  const SYN = { school: "education university college degree bba graduate", college: "education university degree", degree: "education university bba", study: "education university", studied: "education university",
+    wrote: "author", written: "author", writer: "author", author: "wrote", price: "asking rent", cost: "price rent", rent: "base", size: "space building", big: "space building",
+    old: "built", built: "year", parking: "parking spaces", zoned: "zoning", worked: "previously", experience: "previously years", email: "email", phone: "phone", call: "phone" };
+  function answerFromContent(q) {
+    const K = corpus(), qw = [...new Set(words(q + " " + words(q).map((w) => SYN[w] || "").join(" ")))];
+    const rare = qw.filter((w) => (K.df[w] || 0) > 0 && K.df[w] <= 3);   // distinctive words (a name, a company, a street number)
+    const hits = rank(q).slice(0, 3);
+    if (!hits.length || !rare.length) return null;
+    const top = hits[0].c;
+    const ents = new Set(words(top.title));
+    const detail = qw.filter((w) => !ents.has(w));
+    if (!detail.length) return null;   // just a name: let the regular answers handle it
+    const sentences = top.text.match(/[^.!?]+[.!?]+/g) || [top.text];
+    const idf = (w) => Math.log(1 + K.n / (1 + (K.df[w] || 0)));
+    const scored = sentences.map((x, i) => { const sw = new Set(words(x)); let s = 0; detail.forEach((w) => { if (sw.has(w)) s += idf(w); }); return { x: x.trim(), i, s }; }).filter((y) => y.s > 0).sort((a, b) => b.s - a.s).slice(0, 2).sort((a, b) => a.i - b.i);
+    if (!scored.length) {
+      if (top.kind !== "insight" && top.kind !== "listing" && top.kind !== "past") return null;
+      return { text: sentences[0].trim(), links: [link(top.link, top.title.replace(/ \(cont\.\)$/, ""))] };   // about that article or property in general
+    }
+    return { text: scored.map((y) => y.x).join(" "), links: [link(top.link, top.title.replace(/ \(cont\.\)$/, ""))] };
+  }
   /* ── Built-in engine ── */
   const TYPES = { office: "Office", medical: "Medical", healthcare: "Medical", retail: "Retail", restaurant: "Retail", "drive-thru": "Retail", land: "Land", lot: "Land", acre: "Land", "mixed": "Mixed Use", residential: "Residential" };
   function findListings(q) {
@@ -74,6 +164,12 @@ ${knowledge()}`;
       const list = (hits.length ? hits.map((h) => h.a) : INSIGHTS.slice(0, 3));
       return { text: hits.length ? "Here are the most relevant Market Insights:" : "Our latest Market Insights:", links: list.map((a) => link("#insight-" + a.slug, a.title)).concat([link("#insights", "All Market Insights")]) };
     }
+    if (has("job", "career", "hiring", "position", "opening", "work for", "join your", "join the team", "recruit")) {
+      const jobs = (typeof CAREERS !== "undefined" && CAREERS.jobs) || [];
+      if (jobs.length) return { text: `We're looking for Commercial Real Estate Advisors in ${jobs.map((j) => j.city).join(", ")}. The roles are ${[...new Set(jobs.map((j) => j.workspace.toLowerCase() + " " + j.jobType.toLowerCase()))].join(" / ")} positions. You can apply on the Careers page.`, links: [link("#careers", "See open positions")] };
+    }
+    const specific = answerFromContent(q0);
+    if (specific) return specific;
     const f = findListings(q);
     if (has("available", "properties", "listing", "space", "find", "looking for", "search", "office", "retail", "medical", "land", "lease", "buy") || f.t || f.city) {
       const list = f.list.slice(0, 4);
@@ -99,13 +195,13 @@ ${knowledge()}`;
   async function viaSample(history) {
     if (!sampleChecked) { sampleChecked = true; try { sampleFn = window.claude && window.claude.use ? await window.claude.use("sample") : null; } catch (e) { sampleFn = null; } }
     if (!sampleFn) return null;
-    const turns = [{ role: "user", content: SYSTEM() + "\n\nReply to the visitor's messages that follow." }, { role: "assistant", content: "Understood." }].concat(history.map((m) => ({ role: m.role, content: m.text })));
+    const turns = [{ role: "user", content: SYSTEM(history) + "\n\nReply to the visitor's messages that follow." }, { role: "assistant", content: "Understood." }].concat(history.map((m) => ({ role: m.role, content: m.text })));
     const r = await sampleFn(turns, { modelTier: "quick", cache: false });
     return r && r.text ? r.text : null;
   }
   async function viaEndpoint(history) {
     if (!OG_CONFIG.AI_ENABLED || window.OG_PREVIEW) return null;
-    const res = await fetch(OG_CONFIG.ENDPOINT, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ type: "chat", system: SYSTEM(), messages: history.map((m) => ({ role: m.role, content: m.text })), sessionId: window.OG && OG.SESSION_ID }) });
+    const res = await fetch(OG_CONFIG.ENDPOINT, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ type: "chat", system: SYSTEM(history), messages: history.map((m) => ({ role: m.role, content: m.text })), sessionId: window.OG && OG.SESSION_ID }) });
     const j = await res.json(); return j && j.status === "ok" && j.text ? j.text : null;
   }
   function mdToHtml(t) {
