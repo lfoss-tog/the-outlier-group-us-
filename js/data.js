@@ -490,6 +490,84 @@ const TEAM = [
    "CAM Management",
    "Client Service"
   ]
+ },
+ {
+  "slug": "schuyler-moffat",
+  "name": "Schuyler Moffat",
+  "role": "Director of M&A",
+  "img": "assets/img/team/schuyler-moffat.jpg",
+  "email": "smoffat@outliergroup.us",
+  "phone": "(786) 351-4344",
+  "linkedin": "",
+  "agent": null,
+  "bio": [
+   "Schuyler Moffat brings nearly 20 years of corporate finance, FP&A, M&A and business advisory experience to The Outlier Group. Most recently Vice President of Finance at L’Oréal Groupe, he led financial planning and analysis for approximately $2 billion in annual expenses across a 13,500-employee organization, and has supported acquisitions, integrations, financial modeling, forecasting and executive decision-making at organizations ranging from middle-market companies to global enterprises.",
+   "At The Outlier Group, Schuyler focuses on business valuation and transaction advisory. He helps business owners understand the true economics of their companies, normalize financial performance, identify value drivers and risks, and prepare for a successful transaction, combining institutional financial rigor with an owner’s perspective.",
+   "A business owner and real estate investor himself, Schuyler is most at home building, fixing or figuring out how something works, whether it’s a boat, a truck or a project around the house. He also enjoys strength training and spending time on the water."
+  ],
+  "facts": [
+   [
+    "Role",
+    "Director of M&A"
+   ],
+   [
+    "Experience",
+    "Nearly 20 years in corporate finance, FP&A and M&A"
+   ],
+   [
+    "Previously",
+    "Vice President of Finance, L’Oréal Groupe"
+   ],
+   [
+    "Focus",
+    "Business valuation & transaction advisory"
+   ]
+  ],
+  "focus": [
+   "Business Valuation",
+   "Transaction Advisory",
+   "M&A",
+   "Financial Modeling"
+  ]
+ },
+ {
+  "slug": "christopher-delcore",
+  "name": "Christopher Delcore",
+  "role": "Junior Advisor",
+  "img": "assets/img/team/christopher-delcore.jpg",
+  "email": "cdelcore@outliergroup.us",
+  "phone": "516-459-1012",
+  "linkedin": "",
+  "agent": null,
+  "bio": [
+   "Chris is a multifaceted real estate professional with experience across global asset strategy, capital planning and investment brokerage in complex urban markets. He began his career in New York City as Director of Global Property Management at Tishman Speyer, helping oversee portfolio strategy across more than 100 Class A office assets totaling over 80 million square feet in major global markets.",
+   "Chris then moved into brokerage, advising private investors, owners and developers on multifamily, residential investment and new development transactions across Manhattan and Brooklyn. He has contributed to more than $250 million in cumulative team sales and brings a disciplined, underwriting-driven approach to valuation, pricing strategy and deal execution.",
+   "His experience on both the ownership and transaction sides gives him a well-rounded understanding of asset performance, capital deployment and market positioning. Chris holds a BBA in Business Management and Entrepreneurship from Hofstra University."
+  ],
+  "facts": [
+   [
+    "Previously",
+    "Director of Global Property Management, Tishman Speyer"
+   ],
+   [
+    "Track record",
+    "$250M+ in cumulative team sales"
+   ],
+   [
+    "Markets",
+    "Manhattan · Brooklyn"
+   ],
+   [
+    "Education",
+    "BBA, Hofstra University"
+   ]
+  ],
+  "focus": [
+   "Multifamily",
+   "Investment Sales",
+   "New Development",
+   "Asset Strategy"
+  ]
  }
 ];
 

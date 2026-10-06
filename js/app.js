@@ -1504,7 +1504,7 @@
     calculator: { title: "Investment Calculator | The Outlier Group", render: () => renderCalc(null), nav: "portal", wire: wireCalc }
   };
   const ALIASES = { about: "why-outlier", team: "our-team", ourteam: "our-team", whyoutlier: "why-outlier", outlierportfolio: "portfolio", listings: "portfolio", articles: "insights", "market-insights": "insights", submit: "submit-property", privacypolicy: "privacy", oic: "calculator", "investment-calculator": "calculator",
-    macautrey: "team-mac-autrey", vanessaautrey: "team-vanessa-autrey", denzylleibasco: "team-den-ibasco", natashasantillana: "team-natasha-santillana", erikasmith: "team-erika-smith", hollypicano: "team-holly-picano", joyceteixeira: "team-joyce-teixeira", jasonclemmey: "team-jason-clemmey", monsierivera: "team-monsie-rivera", laurielane: "team-laurie-lane", nathaliakeown: "team-nathalia-keown" };
+    macautrey: "team-mac-autrey", vanessaautrey: "team-vanessa-autrey", denzylleibasco: "team-den-ibasco", natashasantillana: "team-natasha-santillana", erikasmith: "team-erika-smith", hollypicano: "team-holly-picano", joyceteixeira: "team-joyce-teixeira", jasonclemmey: "team-jason-clemmey", monsierivera: "team-monsie-rivera", laurielane: "team-laurie-lane", nathaliakeown: "team-nathalia-keown", schuylermoffat: "team-schuyler-moffat", christopherdelcore: "team-christopher-delcore" };
 
   /* Approval link from Natasha's email: #access-<NDA ref>-<token> */
   async function handleAccess(rest) {

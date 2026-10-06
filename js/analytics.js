@@ -57,7 +57,9 @@
     s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GA_MEASUREMENT_ID);
     document.head.appendChild(s);
     g("js", new Date());
-    g("config", GA_MEASUREMENT_ID, { send_page_view: false }); /* page views are sent below, once per route */
+    var cfg = { send_page_view: false }; /* page views are sent below, once per route */
+    try { if (/[?&]og_debug=1/.test(location.search)) cfg.debug_mode = true; } catch (e) {}   /* add ?og_debug=1 to the address to watch events in GA4 DebugView */
+    g("config", GA_MEASUREMENT_ID, cfg);
   }
   var applyConsent = safe(function () {
     var ok = allowed();
@@ -187,7 +189,20 @@
     if ((a = t.closest("#pfChips [data-status]"))) onFilter("status", a.getAttribute("data-status"));
     if (t.closest("#findBtn") || t.closest("#consentYes")) onPortalSearch();
     if ((a = t.closest("[data-ask], #chatSuggest .chip"))) send("assistant_question", { source: "suggested", page_path: pathFor() });
+    /* Navigation: header, mobile menu and footer links */
+    if ((a = t.closest(".site-header a[href], #mobileNav a[href], .site-footer a[href]")) && !/^(tel|mailto):/i.test(a.getAttribute("href"))) {
+      send("nav_click", { nav_location: a.closest("#mobileNav") ? "mobile_menu" : a.closest(".site-footer") ? "footer" : "header", link_text: label(a), link_target: target(a) });
+    } else if ((a = t.closest("a.btn, button.btn")) && !(a.getAttribute("href") || "").match(/^(tel|mailto):/i) && !a.closest("form") && !a.matches("[data-brochure], [data-nda], [data-ask], #findBtn, #consentYes, [href^='#property-']")) {
+      /* Calls to action: any other button-styled link or button (form buttons are counted as form submissions) */
+      send("cta_click", { cta_text: label(a), link_target: target(a), page_path: pathFor() });
+    }
   }), true);
+  function label(el) { return String(el.getAttribute("aria-label") || el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 60); }
+  function target(a) {
+    var h = a.getAttribute && a.getAttribute("href"); if (!h) return "";
+    if (h.charAt(0) === "#") return pathFor(h.slice(1) || "home");
+    try { var u = new URL(h, location.href); return u.origin === location.origin ? u.pathname : u.hostname; } catch (e) { return ""; }
+  }
 
   document.addEventListener("change", safe(function (e) {
     var t = e.target; if (!t || !t.id || !FILTERS[t.id]) return;
