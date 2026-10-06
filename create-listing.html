@@ -83,7 +83,7 @@
 <div><p class="sec">{{secKicker}}</p><h1 class="disp" style="margin: 4px 0 6px; font-size: 36px; font-weight: 600">{{secTitle}}</h1><p class="hint" style="font-size: 14.5px">{{secDesc}}</p></div>
 
 <sc-if value="{{showAddrNote}}" hint-placeholder-val="{{false}}">
-<div class="note ok"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg><span>Address found. City, State, Zip, County and Region were filled in automatically; check them before moving on.</span></div>
+<div class="note ok"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg><span>Address added. Check the City, State, Zip and Region before moving on.</span></div>
 </sc-if>
 <sc-if value="{{showOwnerNote}}" hint-placeholder-val="{{false}}">
 <div class="note amber"><span><b>Restricted section.</b> Owner and decision-maker details never appear on the website, in exports to marketing sites, or in AI prompts. Only the assigned agent and approvers can see them.</span></div>
@@ -202,7 +202,7 @@
 <div class="box" style="padding: 4px 16px">
 <div class="kv"><span>Website title</span><b>{{title}}</b></div>
 <div class="kv"><span>Listing URL</span><b style="font-family: ui-monospace, Menlo, monospace; font-size: 11.5px">#property-{{slug}}</b></div>
-<div class="kv"><span>County → Region</span><b>{{countyRegion}}</b></div>
+<div class="kv"><span>Region</span><b>{{regionText}}</b></div>
 <div class="kv"><span>Offered for</span><b>{{dealText}}</b></div>
 <div class="kv"><span>Price / SF</span><b>{{ppsf}}</b></div>
 <div class="kv"><span>Total gross rent / PSF</span><b>{{grossPsf}}</b></div>
