@@ -126,7 +126,7 @@
   /* ── shared UI ── */
   const pill = (text, cls) => `<span class="pill ${cls}">${esc(text)}</span>`;
   const statusPill = (l) => l.offMarket ? `<span class="pill s-off-market">${ICON.lock} Off-Market</span>`
-    : pill(l.status === "Available" ? (/^Available/.test(l.statusNote || "") ? l.statusNote : "Available") : l.status, "s-" + statusKey(l.status));
+    : pill(l.status === "Available" ? (/^Available\s+(?!now\b)\S/i.test(l.statusNote || "") ? "Coming Soon" : /^Available/.test(l.statusNote || "") ? l.statusNote : "Available") : l.status, "s-" + statusKey(l.status));
   const imgTag = (name, alt) => name ? `<img src="${photoPath(name)}" alt="${esc(alt)}" loading="lazy">` : `<div class="placeholder">${ICON.building}</div>`;
 
   const specList = (l) => `<dl class="specs">
@@ -235,12 +235,6 @@
       <div class="band-media" style="background-image:url('assets/img/site/hero.jpg')"></div>
       <div class="wrap band-inner">
         <p class="band-text" data-reveal>From leasing to investment, we provide local expert guidance at every stage of your commercial real estate journey, helping you achieve your goals with clarity, confidence, and precision.</p>
-        <div class="band-stats" data-reveal>
-          <div><b>2016</b><span>Founded</span></div>
-          <div><b data-count="${active}">${active}</b><span>Available now</span></div>
-          <div><b data-count="${off}">${off}</b><span>Off-market deals</span></div>
-          <div><b data-count="${PUBLIC_LISTINGS().length}">${PUBLIC_LISTINGS().length}</b><span>Portfolio properties</span></div>
-        </div>
       </div>
     </section>
 
@@ -712,7 +706,7 @@
         <div class="chips" id="pfChips" role="group" aria-label="Status"></div>
       </div>
       <a class="portal-pointer" href="#portal" data-reveal>${ICON.lock}<span><b>Confidential off-market opportunities</b> appear here with a lock: their address, photos, and pricing are released only under NDA. For a personalized search that puts off-market properties first, use the Client Portal.</span><span class="pp-go">Open the Client Portal ${ICON.arrow}</span></a>
-      <div class="results-meta"><span aria-live="polite" id="pfCount"></span><button type="button" class="text-btn" id="pfReset">Clear filters</button></div>
+      <div class="results-meta"><span aria-live="polite" id="pfCount" class="sr-only"></span><button type="button" class="text-btn" id="pfReset">Clear filters</button></div>
       <div id="pfResults"></div>
       <div id="pfMapWrap" hidden><div class="map" id="pfMapEl"></div><p class="map-note">Pins show approximate locations.</p></div>
     </div></section>` + needsBand();
@@ -736,7 +730,7 @@
   function pfUpdate(logIt) {
     if (!$("#pfChips")) return;
     const base = pfFilter(true);
-    $("#pfChips").innerHTML = STATUS_CHIPS.map(([k, label]) => `<button type="button" class="chip" data-status="${k}" aria-pressed="${PF.status === k}">${label}<b>${k === "all" ? base.length : base.filter((l) => l.status === k).length}</b></button>`).join("");
+    $("#pfChips").innerHTML = STATUS_CHIPS.map(([k, label]) => `<button type="button" class="chip" data-status="${k}" aria-pressed="${PF.status === k}">${label}</button>`).join("");
     const list = pfFilter(false); const sfn = (l) => l.sfNum || 0;
     if (PF.sort === "status") list.sort((a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status));
     if (PF.sort === "size-desc") list.sort((a, b) => sfn(b) - sfn(a));
@@ -1562,6 +1556,7 @@
     motion(app);
   }
   function setActive(nav) {
+    document.body.classList.toggle("is-home", nav === "home");
     $$("[data-nav]").forEach((a) => a.classList.toggle("active", a.dataset.nav === nav));
     document.body.classList.remove("menu-open"); const mb = $("#menuBtn"); if (mb) mb.setAttribute("aria-expanded", "false");
   }

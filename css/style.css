@@ -1263,3 +1263,8 @@ h3, h4, .display-3 { font-weight: 600; line-height: 1.2; }
 .faq-item summary { padding: 32px 4px; font-family: var(--ui); font-size: 15px; font-weight: 400; }
 .foot-links a, .foot-legal { font-family: var(--nav); font-weight: 300; }
 .foot-tag { font-weight: 600; }
+
+/* Oct 2026 updates: no wordmark on Home (the OG monogram stays), justified team bios */
+body.is-home .site-header .brand { visibility: hidden; }
+.profile-bio p { text-align: justify; text-justify: inter-word; hyphens: auto; -webkit-hyphens: auto; }
+@media (max-width: 560px) { .profile-bio p { text-align: left; hyphens: manual; } }

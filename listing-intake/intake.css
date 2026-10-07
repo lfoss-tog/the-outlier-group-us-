@@ -15,7 +15,7 @@ a{color:#000}
 
 /* Top bar */
 .li-top{flex-shrink:0;height:76px;display:flex;align-items:center;gap:20px;padding:0 48px}
-.li-brand img{height:34px;width:auto;display:block}
+.li-brand img{height:30px;width:auto;display:block}
 .li-app{font-size:13px;letter-spacing:.14em;color:#6F6C68}
 .li-demo{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#B5B2AD}
 .li-link{position:relative;min-height:44px;padding:0 6px;border:0;background:none;font:inherit;font-size:14px;letter-spacing:.06em;color:#000;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
