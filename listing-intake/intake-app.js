@@ -113,7 +113,7 @@ class Component extends DCLogic {
     this._t = setTimeout(() => this.setState({ toast: "" }), 2800);
   }
   addLog(line) { return [line].concat(this.state.log).slice(0, 5); }
-  setVal(k, v) { const vals = Object.assign({}, this.state.vals); vals[k] = v; this.setState({ vals }); }
+  setVal(k, v) { const vals = Object.assign({}, this.state.vals); vals[k] = v; this.setState({ vals, saved: false }); }
   renderVals() {
     const S = this.state, v = S.vals, step = S.step;
     const num = (x) => { const n = parseFloat(String(x || "").replace(/[^0-9.\-]/g, "")); return isFinite(n) ? n : 0; };
@@ -126,104 +126,104 @@ class Component extends DCLogic {
     const autoVals = { ppsf: ppsfN ? money(ppsfN, 2) : "", grossRent: grossN ? money(grossN, 2) + " PSF" : "", monthlyRent: monthlyN ? money(Math.round(monthlyN)) : "" };
     const T = "text", A = "area", SEL = "select", YN = "yn";
     const SECTIONS = [
-      { title: "Basic Property & Location Info", short: "Property & Location", desc: "Type the address, then pick the region the website's filter uses.", fields: [
-        ["name", "Property Name", { vis: "web", conf: 1, ph: "Leave blank to use the address" }],
-        ["address", "Property Address", { vis: "web", req: 1, conf: 1, span: 2 }],
-        ["unit", "Unit / Suite #", { vis: "web", conf: 1, added: 1, hint: "Needed for the website's \"Unit # & Space Available\"." }],
-        ["city", "City", { vis: "web", req: 1, auto: 1 }],
-        ["state", "State", { vis: "web", auto: 1 }],
-        ["zip", "Zip Code", { vis: "web", auto: 1, conf: 1 }],
-        ["region", "Region", { vis: "web", req: 1, added: 1, kind: SEL, opts: ["West Florida", "East Florida", "North Florida", "South Florida"], hint: "Used by the website's region filter." }],
-        ["parcel", "Parcel Number(s)", { vis: "int", ph: "e.g. 23-31-16-12345-000-0010", hint: "Also used for the duplicate check." }],
-        ["type", "Property Type (Retail, Office, Industrial, Medical, Land, Other)", { vis: "web", req: 1, kind: SEL, opts: ["Retail", "Office", "Industrial", "Medical", "Land", "Other"], span: 2 }],
-        ["zoning", "Zoning Description", { vis: "web" }],
-        ["demographics", "5-mile radius Demographics (Bullet Form)", { vis: "web", kind: A, span: 3, hint: "Shown under \"Area & Traffic\" on the property page." }]
+      { title: "Property & Location", short: "Property & Location", moreName: "Additional property details", fields: [
+        ["name", "Property name", { vis: "web", conf: 1, ph: "Leave blank to use the address", w: 6 }],
+        ["address", "Property address", { vis: "web", req: 1, conf: 1, w: 4 }],
+        ["unit", "Unit / Suite", { vis: "web", conf: 1, added: 1, w: 2 }],
+        ["city", "City", { vis: "web", req: 1, auto: 1, w: 3 }],
+        ["state", "State", { vis: "web", auto: 1, w: 1 }],
+        ["zip", "Zip", { vis: "web", auto: 1, conf: 1, w: 2 }],
+        ["region", "Region", { vis: "web", req: 1, added: 1, kind: SEL, opts: ["West Florida", "East Florida", "North Florida", "South Florida"], w: 3 }],
+        ["type", "Property type", { vis: "web", req: 1, kind: SEL, opts: ["Retail", "Office", "Industrial", "Medical", "Land", "Other"], w: 3 }],
+        ["parcel", "Parcel number(s)", { vis: "int", ph: "e.g. 23-31-16-12345-000-0010", w: 3, more: 1 }],
+        ["zoning", "Zoning", { vis: "web", w: 3, more: 1 }],
+        ["demographics", "5-mile demographics", { vis: "web", kind: A, ph: "One point per line", w: 6, more: 1 }]
       ] },
-      { title: "Owner & Contact Information", short: "Owner & Contact", desc: "Who owns the property and who makes decisions. Never published.", fields: [
-        ["ownerName", "Owner Name", { vis: "res", req: 1, ph: "[Owner name]" }],
-        ["ownerEntity", "Owner Entity Name (LLC, Corp, etc.)", { vis: "res", ph: "[Entity name]" }],
-        ["ownerEmail", "Owner Email", { vis: "res", req: 1, ph: "[owner@email.com]" }],
-        ["ownerPhone", "Owner Phone", { vis: "res", ph: "[(000) 000-0000]" }],
-        ["dmName", "Decision Maker Name", { vis: "res", ph: "If different from owner" }],
-        ["dmContact", "Decision Maker Email / Phone", { vis: "res" }],
-        ["commPref", "Preferred Communication Method", { vis: "res", kind: SEL, opts: ["Email", "Phone call", "Text", "Through attorney / rep"] }]
+      { title: "Owner", short: "Owner", desc: "Private. Only the assigned agent and approvers see this.", fields: [
+        ["ownerName", "Owner name", { vis: "res", req: 1, w: 3 }],
+        ["ownerEmail", "Owner email", { vis: "res", req: 1, w: 3 }],
+        ["ownerPhone", "Owner phone", { vis: "res", w: 3 }],
+        ["ownerEntity", "Owner entity", { vis: "res", ph: "LLC, Corp, Trust…", w: 3 }],
+        ["dmName", "Decision maker", { vis: "res", ph: "If different from the owner", w: 3, more: 1 }],
+        ["dmContact", "Decision maker email / phone", { vis: "res", w: 3, more: 1 }],
+        ["commPref", "Preferred contact method", { vis: "res", kind: SEL, opts: ["Email", "Phone call", "Text", "Through attorney / rep"], w: 3, more: 1 }]
       ] },
-      { title: "Building & Site Specifications", short: "Building & Site", desc: "Sizes feed the website's spec rows, size filters and Client Portal matching.", fields: [
-        ["availSF", "Total Available SF", { vis: "web", req: 1 }],
-        ["bldgSF", "Building Size (SF)", { vis: "web", req: 1, added: 1, hint: "Needed for the website's \"Building Size\" spec." }],
-        ["minDiv", "Min Divisible SF", { vis: "web" }],
-        ["maxCont", "Max Contiguous SF", { vis: "web" }],
-        ["land", "Land Size (Acres or SF)", { vis: "web" }],
-        ["lotDim", "Lot Dimensions", { vis: "web" }],
-        ["yearBuilt", "Year Built", { vis: "web" }],
-        ["yearReno", "Year Renovated", { vis: "web" }],
-        ["buildings", "Number of Buildings", { vis: "web" }],
-        ["stories", "Number of Stories/Floors", { vis: "web" }],
-        ["ceiling", "Ceiling Height/Clear Height", { vis: "web" }],
-        ["curbCuts", "Number of Curb Cuts / Access Points", { vis: "web" }],
-        ["parking", "Parking Details (Ratio, Spaces, Type)", { vis: "web", span: 2 }],
-        ["industrial", "Industrial Specs (Loading Docks, Drive-in Doors, Power)", { vis: "web" }],
-        ["hvac", "HVAC Age & Condition", { vis: "int" }],
-        ["roof", "Roof Age & Condition", { vis: "int" }],
-        ["condition", "Property Condition", { vis: "int", kind: SEL, opts: ["Excellent", "Good", "Fair", "Needs work"] }],
-        ["features", "Property Features / Amenities", { vis: "web", kind: A, span: 2, hint: "One per line." }],
-        ["utilities", "Utilities & Providers", { vis: "int", kind: A }]
+      { title: "Building & Site", short: "Building & Site", fields: [
+        ["availSF", "Available SF", { vis: "web", req: 1, w: 3 }],
+        ["bldgSF", "Building size (SF)", { vis: "web", req: 1, added: 1, w: 3 }],
+        ["minDiv", "Min divisible SF", { vis: "web", w: 3 }],
+        ["maxCont", "Max contiguous SF", { vis: "web", w: 3 }],
+        ["yearBuilt", "Year built", { vis: "web", w: 3 }],
+        ["yearReno", "Year renovated", { vis: "web", w: 3 }],
+        ["features", "Features & amenities", { vis: "web", kind: A, ph: "One per line", w: 6 }],
+        ["land", "Land size", { vis: "web", ph: "Acres or SF", w: 3, more: 1 }],
+        ["lotDim", "Lot dimensions", { vis: "web", w: 3, more: 1 }],
+        ["buildings", "Number of buildings", { vis: "web", w: 3, more: 1 }],
+        ["stories", "Number of stories", { vis: "web", w: 3, more: 1 }],
+        ["ceiling", "Ceiling / clear height", { vis: "web", w: 3, more: 1 }],
+        ["curbCuts", "Curb cuts / access points", { vis: "web", w: 3, more: 1 }],
+        ["parking", "Parking", { vis: "web", ph: "Ratio, spaces, type", w: 6, more: 1 }],
+        ["industrial", "Industrial specs", { vis: "web", ph: "Loading docks, drive-in doors, power", w: 6, more: 1 }],
+        ["hvac", "HVAC age & condition", { vis: "int", w: 3, more: 1 }],
+        ["roof", "Roof age & condition", { vis: "int", w: 3, more: 1 }],
+        ["condition", "Property condition", { vis: "int", kind: SEL, opts: ["Excellent", "Good", "Fair", "Needs work"], w: 3, more: 1 }],
+        ["utilities", "Utilities & providers", { vis: "int", kind: A, w: 6, more: 1 }]
       ] },
-      { title: "Sale Details", short: "Sale Details", desc: "Only needed when the property is for sale. Pricing is always approved by a person.", fields: [
-        ["forSale", "For Sale? (Y/N)", { vis: "web", kind: YN, req: 1 }],
-        ["askPrice", "Asking Price", { vis: "web", conf: 1, req: 1, onlyIf: "sale" }],
+      { title: "Sale", short: "Sale", fields: [
+        ["forSale", "For sale?", { vis: "web", kind: YN, req: 1, w: 6 }],
+        ["askPrice", "Asking price", { vis: "web", conf: 1, req: 1, onlyIf: "sale", w: 3 }],
+        ["investment", "Investment type", { vis: "web", kind: SEL, onlyIf: "sale", opts: ["Investment type", "Institutional", "Stabilized", "Value Add", "Redevelopment", "Owner/User", "Core+", "Core", "Net Lease", "Sale/Leaseback"], w: 3 }],
         ["ppsf", "Price / SF", { vis: "web", conf: 1, auto: 1, calc: 1, onlyIf: "sale" }],
-        ["investment", "Investment Details", { vis: "web", kind: SEL, onlyIf: "sale", opts: ["Investment type", "Institutional", "Stabilized", "Value Add", "Redevelopment", "Owner/User", "Core+", "Core", "Net Lease", "Sale/Leaseback"] }],
-        ["capRate", "Cap Rate (if income-producing)", { vis: "web", conf: 1, onlyIf: "sale" }],
-        ["noi", "NOI (if applicable)", { vis: "web", conf: 1, onlyIf: "sale" }],
-        ["taxes", "Annual Property Taxes & Tax Year", { vis: "int", onlyIf: "sale" }],
-        ["hoa", "HOA / Association Fees", { vis: "int", onlyIf: "sale" }],
-        ["occDate", "Available Occupancy Date", { vis: "web", onlyIf: "sale", shared: 1 }],
-        ["occStatus", "Occupancy Status (Vacant, Occupied, Partial)", { vis: "web", kind: SEL, opts: ["Vacant", "Occupied", "Partial"], onlyIf: "sale", shared: 1 }],
-        ["tenants", "Existing Tenants (Y/N)", { vis: "int", kind: YN, onlyIf: "sale", shared: 1 }],
-        ["leaseIncome", "Existing Lease Agreements / Income? (Y/N)", { vis: "int", kind: YN, onlyIf: "sale", shared: 1 }],
-        ["rentRoll", "Tenant Grid / Rent Roll (for retail)", { vis: "int", kind: A, onlyIf: "sale", shared: 1, span: 2 }]
+        ["occStatus", "Occupancy", { vis: "web", kind: SEL, opts: ["Vacant", "Occupied", "Partial"], onlyIf: "sale", shared: 1, w: 3 }],
+        ["occDate", "Available from", { vis: "web", onlyIf: "sale", shared: 1, w: 3 }],
+        ["capRate", "Cap rate", { vis: "web", conf: 1, onlyIf: "sale", w: 3, more: 1 }],
+        ["noi", "NOI", { vis: "web", conf: 1, onlyIf: "sale", w: 3, more: 1 }],
+        ["taxes", "Property taxes & tax year", { vis: "int", onlyIf: "sale", w: 3, more: 1 }],
+        ["hoa", "HOA / association fees", { vis: "int", onlyIf: "sale", w: 3, more: 1 }],
+        ["tenants", "Existing tenants?", { vis: "int", kind: YN, onlyIf: "sale", shared: 1, w: 3, more: 1 }],
+        ["leaseIncome", "Existing leases or income?", { vis: "int", kind: YN, onlyIf: "sale", shared: 1, w: 3, more: 1 }],
+        ["rentRoll", "Tenant grid / rent roll", { vis: "int", kind: A, onlyIf: "sale", shared: 1, w: 6, more: 1 }]
       ] },
-      { title: "Lease Details", short: "Lease Details", desc: "Only needed when the property is for lease. Rates are saved under the labels the website's investment calculator reads.", fields: [
-        ["forLease", "For Lease? (Y/N)", { vis: "web", kind: YN, req: 1 }],
-        ["tenancy", "Tenancy Type (Single vs. Multi-Tenant)", { vis: "web", kind: SEL, opts: ["Single-Tenant", "Multi-Tenant"], onlyIf: "lease" }],
-        ["baseRent", "Base Rent / PSF", { vis: "web", conf: 1, req: 1, onlyIf: "lease" }],
-        ["nnn", "NNN or CAM Expenses / PSF", { vis: "web", conf: 1, onlyIf: "lease" }],
-        ["otherExp", "Other Expenses", { vis: "web", conf: 1, onlyIf: "lease" }],
-        ["grossRent", "Total Gross Rent / PSF", { vis: "web", conf: 1, auto: 1, calc: 1, onlyIf: "lease" }],
-        ["monthlyRent", "Total Monthly Rent", { vis: "web", conf: 1, auto: 1, calc: 1, onlyIf: "lease" }],
-        ["leaseType", "Lease Type (NNN, Gross, Modified)", { vis: "web", kind: SEL, opts: ["NNN", "Gross", "Modified Gross"], onlyIf: "lease" }],
-        ["term", "Lease Term Limits (Min/Max)", { vis: "web", onlyIf: "lease" }],
-        ["ti", "Tenant Improvement (TI) Allowance", { vis: "int", onlyIf: "lease" }],
-        ["occDate", "Available Occupancy Date", { vis: "web", onlyIf: "lease", shared: 1 }],
-        ["occStatus", "Occupancy Status (Vacant, Occupied, Partial)", { vis: "web", kind: SEL, opts: ["Vacant", "Occupied", "Partial"], onlyIf: "lease", shared: 1 }],
-        ["tenants", "Existing Tenants (Y/N)", { vis: "int", kind: YN, onlyIf: "lease", shared: 1 }],
-        ["leaseIncome", "Existing Lease Agreements / Income? (Y/N)", { vis: "int", kind: YN, onlyIf: "lease", shared: 1 }],
-        ["rentRoll", "Tenant Grid / Rent Roll (for retail)", { vis: "int", kind: A, onlyIf: "lease", shared: 1, span: 2 }]
+      { title: "Lease", short: "Lease", fields: [
+        ["forLease", "For lease?", { vis: "web", kind: YN, req: 1, w: 6 }],
+        ["baseRent", "Base rent / SF", { vis: "web", conf: 1, req: 1, onlyIf: "lease", w: 2 }],
+        ["nnn", "NNN / CAM / SF", { vis: "web", conf: 1, onlyIf: "lease", w: 2 }],
+        ["otherExp", "Other expenses / SF", { vis: "web", conf: 1, onlyIf: "lease", w: 2 }],
+        ["grossRent", "Total gross rent / SF", { vis: "web", conf: 1, auto: 1, calc: 1, onlyIf: "lease" }],
+        ["monthlyRent", "Total monthly rent", { vis: "web", conf: 1, auto: 1, calc: 1, onlyIf: "lease" }],
+        ["leaseType", "Lease type", { vis: "web", kind: SEL, opts: ["NNN", "Gross", "Modified Gross"], onlyIf: "lease", w: 3 }],
+        ["term", "Lease term", { vis: "web", ph: "e.g. 3–5 years", onlyIf: "lease", w: 3 }],
+        ["occStatus", "Occupancy", { vis: "web", kind: SEL, opts: ["Vacant", "Occupied", "Partial"], onlyIf: "lease", shared: 1, w: 3 }],
+        ["occDate", "Available from", { vis: "web", onlyIf: "lease", shared: 1, w: 3 }],
+        ["tenancy", "Tenancy", { vis: "web", kind: SEL, opts: ["Single-Tenant", "Multi-Tenant"], onlyIf: "lease", w: 3, more: 1 }],
+        ["ti", "TI allowance", { vis: "int", onlyIf: "lease", w: 3, more: 1 }],
+        ["tenants", "Existing tenants?", { vis: "int", kind: YN, onlyIf: "lease", shared: 1, w: 3, more: 1 }],
+        ["leaseIncome", "Existing leases or income?", { vis: "int", kind: YN, onlyIf: "lease", shared: 1, w: 3, more: 1 }],
+        ["rentRoll", "Tenant grid / rent roll", { vis: "int", kind: A, onlyIf: "lease", shared: 1, w: 6, more: 1 }]
       ] },
-      { title: "Compliance, Media, & Documents", short: "Compliance & Media", desc: "Internal due-diligence notes. You upload the actual photos and documents in the next step, and the Y/N questions below fill in automatically from your uploads.", fields: [
-        ["usesNotAllowed", "Uses Not Allowed or Conflicting? (Y/N, with Notes)", { vis: "int", kind: A }],
-        ["permits", "Permits or Licenses Required (Y/N, Notes)", { vis: "int", kind: A }],
-        ["environmental", "Environmental Concerns (Yes/No — if yes, notes)", { vis: "int", kind: A }],
-        ["insurance", "Insurance / Warranties", { vis: "int" }],
-        ["photosAvail", "Photos Available? (Y/N)", { vis: "int", kind: YN }],
-        ["floorPlan", "Floor Plan Available? (Y/N)", { vis: "int", kind: YN }],
-        ["sitePlan", "Site Plan / Survey Available? (Y/N)", { vis: "int", kind: YN }],
-        ["reports", "Property Reports Available (Y/N, Notes)", { vis: "int", span: 2 }]
+      { title: "Compliance", short: "Compliance", fields: [
+        ["environmental", "Environmental concerns", { vis: "int", kind: A, ph: "None known, or describe", w: 6 }],
+        ["usesNotAllowed", "Uses not allowed or conflicting", { vis: "int", kind: A, ph: "None, or describe", w: 6 }],
+        ["permits", "Permits or licenses required", { vis: "int", kind: A, w: 6, more: 1 }],
+        ["insurance", "Insurance / warranties", { vis: "int", w: 6, more: 1 }],
+        ["reports", "Property reports available", { vis: "int", w: 6, more: 1 }],
+        ["photosAvail", "Photos available?", { vis: "int", kind: YN, w: 2, more: 1 }],
+        ["floorPlan", "Floor plan available?", { vis: "int", kind: YN, w: 2, more: 1 }],
+        ["sitePlan", "Site plan / survey?", { vis: "int", kind: YN, w: 2, more: 1 }]
       ] },
-      { title: "Images & Documents", short: "Images & Documents", upload: 1, desc: "Upload property photos and any documents: flyers, floor plans, site plans, surveys, rent rolls or reports. (Added: not a section in your template.)", fields: [] },
-      { title: "Brokerage & Marketing (Internal)", short: "Brokerage & Marketing", desc: "Marketing copy for the website and listing sites, plus internal broker details.", fields: [
-        ["showing", "Showing Instructions & Lockbox Code", { vis: "res", kind: A, span: 2, hint: "Restricted: never exported, emailed or published." }],
-        ["signage", "Signage Available? (Yes/No)", { vis: "web", kind: YN }],
-        ["confidential", "Confidential Listing? (Y/N — if yes, notes)", { vis: "int", kind: YN, hint: "Yes = off-market: website shows a locked teaser, details released under NDA." }],
-        ["channels", "Preferred Marketing Channels", { vis: "int", span: 2 }],
-        ["agent", "Assigned Agent", { vis: "web", req: 1, kind: SEL, opts: ["Laurie Lane", "Joyce Teixeira", "Mackinley Autrey", "Jason Clemmey", "Christopher Delcore", "Outlier Solutions Team"] }],
-        ["status", "Listing Status", { vis: "web", req: 1, added: 1, kind: SEL, opts: ["Available", "Pending", "Leased", "Sold"], hint: "Needed for the website's status label." }],
-        ["headline", "Headline for Marketing (e.g 2nd Generation Restaurant Space)", { vis: "web", req: 1, span: 2 }],
-        ["idealUses", "Ideal Uses", { vis: "web", span: 3, hint: "Shown as \"Ideal for …\" under the headline." }],
-        ["description", "Marketing Description (Crexi, Loopnet, etc)", { vis: "web", req: 1, kind: A, span: 3 }],
-        ["highlights", "Highlight Features (For Flyers)", { vis: "web", kind: A, span: 2, hint: "One per line. Used on the website and brochure." }],
-        ["notes", "Broker Notes (Internal Use Only)", { vis: "int", kind: A }]
+      { title: "Photos & Documents", short: "Photos & Documents", upload: 1, fields: [] },
+      { title: "Marketing", short: "Marketing", fields: [
+        ["headline", "Headline", { vis: "web", req: 1, ph: "e.g. 2nd Generation Restaurant Space", w: 6 }],
+        ["idealUses", "Ideal for", { vis: "web", ph: "e.g. coffee, retail or service users", w: 6 }],
+        ["description", "Marketing description", { vis: "web", req: 1, kind: A, w: 6, tall: 1 }],
+        ["highlights", "Highlights", { vis: "web", kind: A, ph: "One per line", w: 6 }],
+        ["agent", "Assigned agent", { vis: "web", req: 1, kind: SEL, opts: ["Laurie Lane", "Joyce Teixeira", "Mackinley Autrey", "Jason Clemmey", "Christopher Delcore", "Outlier Solutions Team"], w: 3 }],
+        ["status", "Listing status", { vis: "web", req: 1, added: 1, kind: SEL, opts: ["Available", "Pending", "Leased", "Sold"], w: 3 }],
+        ["confidential", "Confidential listing?", { vis: "int", kind: YN, w: 6, hintIf: "Yes", hintText: "The website shows a locked teaser. Address, photos and pricing are released after an approved NDA." }],
+        ["signage", "Signage available?", { vis: "web", kind: YN, w: 3, more: 1 }],
+        ["channels", "Marketing channels", { vis: "int", w: 3, more: 1 }],
+        ["showing", "Showing instructions & lockbox", { vis: "res", kind: A, ph: "Private. Never exported, emailed or published.", w: 6, more: 1 }],
+        ["notes", "Broker notes", { vis: "int", kind: A, ph: "Internal only", w: 6, more: 1 }]
       ] }
     ];
     const active = (fd) => !fd.onlyIf || (fd.onlyIf === "sale" ? sale : lease);
@@ -237,7 +237,7 @@ class Component extends DCLogic {
     const visOf = (fd) => conf && fd.conf && fd.vis === "web" ? "nda" : fd.vis;
     const valOf = (key, fd) => fd.calc ? autoVals[key] : (v[key] || "");
     const isEmpty = (key, fd) => !String(valOf(key, fd)).trim();
-    const segOn = "background:#141414;color:#fff", segOff = "background:transparent;color:#3A3835";
+    const segOn = "background:#000;color:#fff", segOff = "background:transparent;color:#282626";
     // required / issues
     const issuesRaw = [];
     SECTIONS.forEach((sec, si) => sec.fields.forEach(([key, label, fd]) => { if (fd.req && active(fd) && !sharedHidden(si, fd) && isEmpty(key, fd)) issuesRaw.push({ step: si + 1, text: label.replace(/ \(.*\)$/, "") + " is required" }); }));
@@ -249,27 +249,41 @@ class Component extends DCLogic {
     SECTIONS.forEach((sec, si) => sec.fields.forEach(([key, , fd]) => { if (fd.req && active(fd) && !sharedHidden(si, fd)) { totalReq++; if (!isEmpty(key, fd)) doneReq++; } }));
     const issuesAt = (n) => issuesRaw.filter((i) => i.step === n);
     const go = (n) => () => this.setState({ step: n, preview: false });
-    // current section fields
-    let fields = [];
-    const sec = SECTIONS[step - 1];
-    if (sec) fields = sec.fields.filter(([, , fd], i) => (active(fd) || !fd.onlyIf) && !sharedHidden(step - 1, fd)).map(([key, label, fd]) => {
-      const kind = fd.kind || T, vis = visOf(fd), val = valOf(key, fd), missing = fd.req && !String(val).trim();
-      return { id: "f_" + key, label, req: !!fd.req, auto: !!fd.auto, added: !!fd.added, badge: BADGE[vis][0], badgeStyle: BADGE[vis][1],
-        isText: kind === T, isArea: kind === A, isSelect: kind === SEL, isYN: kind === YN, opts: fd.opts || [], val, ph: fd.ph || "",
+    // current section fields: primary fields first, secondary ones under "Additional details"
+    const seen = S.seen || {}, showReq = !!S.tried || !!seen[step];
+    const ERR = "#9B2C2C";
+    const mkField = ([key, label, fd]) => {
+      const kind = fd.kind || T, vis = visOf(fd), val = valOf(key, fd), missing = fd.req && !String(val).trim(), flag = missing && showReq;
+      const hint = flag ? "Required" : (key === "address" && step === 1 && val ? "✓ Added" : (fd.hintIf && val === fd.hintIf ? fd.hintText : ""));
+      return { id: "f_" + key, label, req: !!fd.req, val, ph: fd.ph || "", vis, visLabel: BADGE[vis][0], auto: !!fd.auto, added: !!fd.added,
+        isText: kind === T, isArea: kind === A, isSelect: kind === SEL, isYN: kind === YN, opts: fd.opts || [],
         set: (e) => { if (!fd.calc) this.setVal(key, e.target.value); },
         yes: () => this.setVal(key, "Yes"), no: () => this.setVal(key, "No"),
         yesStyle: val === "Yes" ? segOn : segOff, noStyle: val === "No" ? segOn : segOff,
-        span: "grid-column: span " + (fd.span || 1),
-        inStyle: (fd.auto ? "border-color:rgba(20,20,20,0.4);background:rgba(20,20,20,0.064);" : "") + (missing ? "border-color:#141414;" : "") + (kind === A ? "min-height:" + (fd.span === 3 ? 120 : 96) + "px;" : ""),
-        hasHint: !!(missing || fd.hint), hint: missing ? "Required" : fd.hint || "", hintStyle: "margin:0;font-size:12.5px;color:" + (missing ? "#141414" : "#5A5752") };
-    });
-    const steps = SECTIONS.map((s, i) => ({ label: s.short })).concat([{ label: "Review & Submit" }]).map((s, i) => {
-      const n = i + 1, cur = n === step, bad = n < 9 ? issuesAt(n).length : issuesRaw.length, visited = n < step;
-      return { label: s.label, pick: go(n), mark: visited && !bad ? "✓" : String(n),
-        sub: n === 4 && !sale ? "Not for sale · skipped" : n === 5 && !lease ? "Not for lease · skipped" : bad ? bad + (bad === 1 ? " item needs attention" : " items need attention") : cur ? "In progress" : visited ? "Complete" : "Not started",
-        rowStyle: "display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:7px 10px;border-radius:12px;border:0;cursor:pointer;color:#141414;font:inherit;" + (cur ? "background:rgba(20,20,20,0.128);box-shadow:inset 0 0 0 1px rgba(20,20,20,0.36)" : "background:transparent"),
-        numStyle: "flex-shrink:0;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;" + (cur ? "background:#141414;color:#fff" : visited && !bad ? "background:rgba(20,20,20,0.12);color:#141414" : bad ? "background:rgba(20,20,20,0.09);color:#5A5752" : "background:rgba(20,20,20,0.126);color:#5A5752"),
-        subStyle: "font-size:11.5px;color:" + (bad ? "#5A5752" : "#5A5752") };
+        span: "grid-column: span " + (fd.w || 3),
+        inStyle: (flag ? "border-color:" + ERR + ";" : "") + (kind === A ? "min-height:" + (fd.tall ? 168 : 120) + "px;" : ""),
+        hasHint: !!hint, hint, hintStyle: "margin:0;font-size:13px;color:" + (flag ? ERR : "#6F6C68") };
+    };
+    const sec = SECTIONS[step - 1];
+    const visible = sec ? sec.fields.filter(([, , fd]) => active(fd) && !sharedHidden(step - 1, fd) && !fd.calc) : [];
+    const fields = visible.filter(([, , fd]) => !fd.more).map(mkField);
+    const moreAll = visible.filter(([, , fd]) => fd.more);
+    const moreOpen = !!(S.more || {})[step];
+    const moreFields = moreOpen ? moreAll.map(mkField) : [];
+    const moreFilled = moreAll.filter(([key, , fd]) => !isEmpty(key, fd)).length;
+    const allFields = sec ? sec.fields.filter(([, , fd]) => active(fd) && !sharedHidden(step - 1, fd)).map(mkField) : [];
+    const calcLine = step === 4 && sale ? (autoVals.ppsf ? "Price / SF  " + autoVals.ppsf : "") : step === 5 && lease ? [autoVals.grossRent ? "Gross rent " + autoVals.grossRent : "", autoVals.monthlyRent ? "Monthly rent " + autoVals.monthlyRent : ""].filter(Boolean).join("   ·   ") : "";
+    const skipped = (n) => (n === 4 && !sale) || (n === 5 && !lease);
+    const blocking = (n) => issuesAt(n).filter((i) => !i.warn).length;
+    const steps = SECTIONS.map((s, i) => ({ label: s.short })).concat([{ label: "Review" }]).map((s, i) => {
+      const n = i + 1, cur = n === step, visited = n < step || !!seen[n], bad = n < 9 ? issuesAt(n).length : 0;
+      const flagged = bad && (visited || S.tried) && !cur, done = n < 9 && visited && !bad && !cur && !skipped(n);
+      return { label: s.label, pick: () => this.setState({ step: n, preview: false, seen: Object.assign({}, seen, { [step]: true }) }), num: String(n), cur,
+        markText: done ? "✓" : flagged ? "•" : "", ariaCur: cur ? "step" : false,
+        rowStyle: "display:flex;align-items:center;gap:14px;width:100%;min-height:44px;padding:0 4px;border:0;background:none;cursor:pointer;font:inherit;text-align:left;color:" + (cur ? "#000" : skipped(n) ? "#B5B2AD" : "#6F6C68"),
+        numStyle: "flex-shrink:0;width:18px;font-size:13px;font-variant-numeric:tabular-nums;color:" + (cur ? "#000" : "#B5B2AD"),
+        nameStyle: "flex-grow:1;font-size:15px;white-space:nowrap;" + (cur ? "font-weight:500" : ""),
+        markStyle: "flex-shrink:0;width:14px;text-align:center;font-size:" + (flagged ? "20px;color:" + ERR : "13px;color:#6F6C68") };
     });
     const WF = ["Draft", "In Review", "Approved", "Excel Created", "Flyer Created", "Ready for Review", "Published"];
     const failAt = S.fail === "excel" ? 3 : S.fail === "flyer" ? 4 : -1;
@@ -305,16 +319,14 @@ class Component extends DCLogic {
     let nWeb = 0, nInt = 0, nRes = 0;
     SECTIONS.forEach((s, si) => s.fields.forEach(([key, , fd]) => { if (!active(fd) || sharedHidden(si, fd)) return; const vi = visOf(fd); if (vi === "web") nWeb++; else if (vi === "int") nInt++; else nRes++; }));
     const review = SECTIONS.map((s, si) => {
-      const fl = s.fields.filter(([, , fd]) => active(fd) && !sharedHidden(si, fd));
-      const filled = fl.filter(([key, , fd]) => !isEmpty(key, fd)).length, bad = issuesAt(si + 1);
-      const skipped = (si === 3 && !sale) || (si === 4 && !lease);
-      if (s.upload) { const ni = (S.files || []).filter((f) => f.kind === "image").length, nd = (S.files || []).length - ni; return { label: s.title, go: go(si + 1), count: ni + " photos · " + nd + " documents", state: bad.length ? "! " + bad[0].text : "✓ Ready", style: "font-size:13px;text-align:right;max-width:330px;color:" + (bad.length ? "#5A5752" : "#141414") }; }
-      return { label: s.title, go: go(si + 1), count: skipped ? "Skipped" : filled + " of " + fl.length + " answered",
-        state: skipped ? "—" : bad.length ? "✕ " + bad[0].text : "✓ Ready",
-        style: "font-size:13px;text-align:right;max-width:330px;color:" + (skipped ? "#5A5752" : bad.length ? (bad[0].warn ? "#5A5752" : "#141414") : "#141414") };
+      const bad = issuesAt(si + 1), sk = skipped(si + 1);
+      const ni = (S.files || []).filter((f) => f.kind === "image").length, nd = (S.files || []).length - ni;
+      const note = sk ? "Not needed" : bad.length ? bad[0].text + (bad.length > 1 ? " (+" + (bad.length - 1) + ")" : "") : s.upload ? ni + (ni === 1 ? " photo" : " photos") + (nd ? " · " + nd + (nd === 1 ? " document" : " documents") : "") : "";
+      return { label: s.title, go: go(si + 1), note, ok: !sk && !bad.length, mark: sk ? "" : bad.length ? "" : "✓",
+        noteStyle: "flex-grow:1;font-size:14px;color:" + (bad.length && !sk ? (bad[0].warn ? "#6F6C68" : ERR) : "#6F6C68") };
     });
-    const issues = issuesRaw.map((i) => ({ where: "Section " + i.step, text: i.text, go: go(i.step),
-      style: "display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%;min-height:44px;padding:9px 12px;border-radius:10px;cursor:pointer;font:inherit;font-size:13px;" + (i.warn ? "background:rgba(20,20,20,0.04);border:1px solid rgba(20,20,20,0.175);color:#3A3835" : "background:rgba(20,20,20,0.048);border:1px solid rgba(20,20,20,0.24);color:#141414") }));
+    const issues = issuesRaw.map((i) => ({ where: SECTIONS[i.step - 1] ? SECTIONS[i.step - 1].short : "", text: i.text, go: () => this.setState({ step: i.step, drawer: false, preview: false }),
+      style: "display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%;padding:12px 0;border:0;border-bottom:1px solid rgba(0,0,0,.07);background:none;cursor:pointer;font:inherit;font-size:14px;color:" + (i.warn ? "#282626" : ERR) }));
     const wf = S.wf, LABELS = steps.map((s) => s.label);
     const hl = String(v.highlights || "").split(/\n/).filter(Boolean);
     const pvFacts = conf
@@ -326,50 +338,54 @@ class Component extends DCLogic {
     const files = S.files || [], imgs = files.filter((f) => f.kind === "image"), docs = files.filter((f) => f.kind === "doc");
     const kb = (n) => n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
     const dropFile = (id) => () => this.setFiles(files.filter((f) => f.id !== id));
-    const tagCss = (bg, fg) => "position:absolute;top:8px;left:8px;background:" + bg + ";color:" + fg;
-    const photoList = imgs.map((f, i) => ({ name: f.name, url: f.url || "", hasUrl: !!f.url, noUrl: !f.url,
-      webName: (conf ? "private" : slug) + "-" + (i + 1) + ".jpg", meta: f.name + " · " + kb(f.size),
-      tag: i === 0 ? "Cover" : i < 5 ? (conf ? "NDA" : "Website") : "Internal (over 5)",
-      tagStyle: i === 0 ? tagCss("#141414", "#fff") : i < 5 ? tagCss("rgba(255,255,255,.92)", conf ? "#141414" : "#141414") : tagCss("rgba(255,255,255,.92)", "#5A5752"),
-      coverLabel: i === 0 ? "Cover photo" : "Make cover",
-      coverBtnStyle: "min-height:34px;padding:0 12px;border-radius:999px;font:inherit;font-size:12px;cursor:pointer;" + (i === 0 ? "border:1px solid #141414;background:#141414;color:#FFFFFF" : "border:1px solid rgba(20,20,20,0.315);background:transparent;color:#3A3835"),
+    const photoList = imgs.map((f, i) => ({ name: f.name, url: f.url || "", hasUrl: !!f.url, noUrl: !f.url, isCover: i === 0, notCover: i > 0,
+      tag: i === 0 ? "Cover" : i >= 5 ? "Not on website" : "", hasTag: i === 0 || i >= 5,
       makeCover: () => { if (i) this.setFiles([f].concat(files.filter((x) => x.id !== f.id))); }, remove: dropFile(f.id) }));
     const setDoc = (id, patch) => this.setFiles(files.map((x) => x.id === id ? Object.assign({}, x, patch) : x));
     const docList = docs.map((f) => { const ext = (f.name.split(".").pop() || "").toUpperCase().slice(0, 4);
-      return { name: f.name, ext, meta: kb(f.size) + " · " + (f.web ? (conf ? "released after NDA" : "downloadable on the property page") : "Drive (private)"), category: f.category,
-        extStyle: "flex-shrink:0;width:44px;text-align:center;font-size:11px;font-weight:600;padding:5px 0;border-radius:8px;background:" + (ext === "PDF" ? "rgba(20,20,20,0.096);color:#141414" : /^XLS|CSV/.test(ext) ? "rgba(20,20,20,0.108);color:#141414" : "rgba(20,20,20,0.128);color:#141414"),
+      return { name: f.name, ext, category: f.category,
         setCategory: (e) => setDoc(f.id, { category: e.target.value }), setWeb: () => setDoc(f.id, { web: true }), setInt: () => setDoc(f.id, { web: false }),
-        webStyle: "font-size:12.5px;min-height:32px;" + (f.web ? segOn : segOff), intStyle: "font-size:12.5px;min-height:32px;" + (!f.web ? segOn : segOff), remove: dropFile(f.id) }; });
-    const footerHint = S.fail ? "Nothing was lost or duplicated. Fix the cause, then retry. It continues from the failed step." : wf === 1 ? "Waiting for Natasha. She was emailed a review link." : (wf >= 2 && wf <= 4) ? "Approved. Creating the Excel file and Canva flyer automatically…" : wf === 5 ? "Ready for review: check the website preview, Excel file and flyer, then publish." : wf === 6 ? "Live on the website. Edits create a new revision; Excel and flyer are regenerated after re-approval." : step === 9 ? (issuesRaw.filter((i) => !i.warn).length ? "Fix the items marked ✕ before submitting." : "Ready to submit.") : "Saved automatically every 30 seconds.";
+        webStyle: f.web ? segOn : segOff, intStyle: !f.web ? segOn : segOff, remove: dropFile(f.id) }; });
+    const nBlock = issuesRaw.filter((i) => !i.warn).length;
+    const footerHint = S.fail ? "Something failed after approval. Nothing was lost; retry continues from the failed step." : wf === 1 ? "Waiting for Natasha's approval" : (wf >= 2 && wf <= 4) ? "Creating the Excel record and flyer…" : wf === 5 ? "Check the preview and flyer, then publish" : wf === 6 ? "" : (step === 9 || S.tried) && nBlock ? nBlock + (nBlock === 1 ? " item needs attention" : " items need attention") : S.saved ? "Saved" : "";
     const fileName = "Listing Intake - " + (v.address || "Property Address") + ".xlsx";
     return {
       step, steps, wfSteps, fields, doneReq, totalReq, pctW: Math.round(totalReq ? doneReq / totalReq * 100 : 0) + "%",
-      isForm: step <= 8, isReview: step === 9, showUpload: !!(sec && sec.upload), secKicker: sec && sec.upload ? "Section " + step + " of 8 · added for uploads" : "Section " + step + " of 8 · from your intake template", secTitle: sec ? sec.title : "", secDesc: sec ? sec.desc : "",
-      showAddrNote: step === 1 && !!v.address, showOwnerNote: step === 2, showConfNote: conf && step !== 2 && step !== 9 && !(sec && sec.upload),
-      showSkip: (step === 4 && !sale) || (step === 5 && (!lease || sale)), skipText: step === 4 ? "Marked not for sale, so the sale fields are skipped. Switch to Yes to fill them in." : !lease ? "Marked not for lease, so the lease fields are skipped. Switch to Yes to fill them in." : "Occupancy date, occupancy status, tenants and rent roll were already answered in Sale Details, so they aren't asked twice.",
-      photoList, docList, photoCount: imgs.length, docCount: docs.length, noPhotos: !imgs.length, noDocs: !docs.length,
-      photoRule: "First photo is the cover · up to 5 show on the website · originals are saved to the property's Drive folder and the best ones are picked for the flyer",
+      isForm: step <= 8, isReview: step === 9, showUpload: !!(sec && sec.upload), secTitle: sec ? sec.title : "Review", secDesc: sec && sec.desc ? sec.desc : "", hasDesc: !!(sec && sec.desc),
+      mobileStep: "Step " + step + " of 9",
+      confLine: conf && (step === 1 || step === 7) ? "Confidential listing · the address, photos and pricing are released only under NDA." : "", hasConfLine: conf && (step === 1 || step === 7),
+      hasFields: fields.length > 0, moreFields, hasMore: moreAll.length > 0, moreOpen, toggleMore: () => this.setState({ more: Object.assign({}, S.more || {}, { [step]: !moreOpen }) }),
+      moreLabel: (sec && sec.moreName) || "Additional details", moreSign: moreOpen ? "−" : "+",
+      calcLine, hasCalc: !!calcLine, moreExp: moreOpen ? "true" : "false", adminExp: S.admin ? "true" : "false",
+      photoList, docList, photoCount: imgs.length, docCount: docs.length, hasPhotos: imgs.length > 0, hasDocs: docs.length > 0,
       docCats: ["Brochure / Flyer", "Floor Plan", "Site Plan / Survey", "Rent Roll", "Property Report", "Environmental Report", "Other"],
       pickFiles: (e) => { this.addFiles(e.target.files); try { e.target.value = ""; } catch (x) {} },
       dragOver: (e) => { e.preventDefault(); if (!S.drag) this.setState({ drag: true }); },
       dragLeave: () => this.setState({ drag: false }),
       dropFiles: (e) => { e.preventDefault(); this.setState({ drag: false }); this.addFiles(e.dataTransfer && e.dataTransfer.files); },
-      dropStyle: "position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:30px;border-radius:16px;cursor:pointer;border:1.5px dashed " + (S.drag ? "#141414;background:rgba(20,20,20,0.128)" : "rgba(20,20,20,0.36);background:rgba(20,20,20,0.04)"),
+      dropStyle: "position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:" + (files.length ? 120 : 200) + "px;padding:28px;border-radius:14px;cursor:pointer;transition:background .2s,border-color .2s;border:1px dashed " + (S.drag ? "#000;background:rgba(0,0,0,.04)" : "rgba(0,0,0,.22);background:transparent"),
       pvHasImg: !conf && !!(imgs[0] && imgs[0].url), pvImg: imgs[0] && imgs[0].url ? imgs[0].url : "",
       bWeb: BADGE.web[1], bInt: BADGE.int[1], bRes: BADGE.res[1], bNda: BADGE.nda[1],
+      statusText: "Status: " + (S.fail ? (S.fail === "excel" ? "Excel failed" : "Flyer failed") : ["Draft", "In review", "Approved", "Excel created", "Flyer created", "Ready for review", "Published"][wf] || "Draft"),
+      pipeline: WF.map((label, i) => ({ label, style: "font-size:14px;padding:4px 0;color:" + (i === wf ? "#000;font-weight:500" : i < wf ? "#6F6C68" : "#B5B2AD"), mark: i < wf ? "✓" : i === wf ? "•" : "" })),
+      drawer: !!S.drawer, openDrawer: () => this.setState({ drawer: true, preview: false }), closeDrawer: () => this.setState({ drawer: false }),
+      admin: !!S.admin, toggleAdmin: () => this.setState({ admin: !S.admin }), adminSign: S.admin ? "−" : "+",
+      adminFields: allFields.map((f) => ({ label: f.label, vis: f.visLabel + (f.auto ? " · auto" : "") + (f.added ? " · added" : "") })), hasAdminFields: allFields.length > 0,
+      isSale: sale, isLease: lease, summaryDot: !!(nBlock && (S.tried || step === 9)), hasLog: !!(S.log && S.log.length), isDemo: Component.demo(),
       title, slug, dealText, regionText: v.region || "—",
       ppsf: autoVals.ppsf || "—", grossPsf: autoVals.grossRent || "—", monthly: autoVals.monthlyRent || "—",
       issues, issueCount: issues.length, noIssues: !issues.length, log: S.log, review, nWeb, nInt, nRes, fileName,
-      back: () => this.setState({ step: Math.max(1, step - 1) }), next: () => this.setState({ step: Math.min(9, step + 1) }),
-      nextLabel: step < 9 ? LABELS[step] : "",
+      back: () => this.setState({ step: Math.max(1, step - 1), seen: Object.assign({}, seen, { [step]: true }) }), next: () => this.setState({ step: Math.min(9, step + 1), seen: Object.assign({}, seen, { [step]: true }) }),
+      nextLabel: step < 9 ? LABELS[step] : "", showBack: step > 1 && wf === 0, hasFooterHint: !!footerHint, footerStyle: "flex-grow:1;font-size:" + (footerHint === "Saved" ? "13px;color:#B5B2AD" : "14px;color:" + ((step === 9 || S.tried) && nBlock && !wf && !S.fail ? ERR : "#6F6C68")),
+      pct: Math.round(totalReq ? doneReq / totalReq * 100 : 0),
       showNext: wf === 0 && step < 9, showSubmit: wf === 0 && step === 9, showApprove: wf === 1 && !S.fail, showRetry: !!S.fail, showPublish: wf === 5 && !S.fail, showLive: wf === 6, showReset: Component.demo(), dataPill: Component.cfg().START_WITH_SAMPLE !== false ? "Sample data" : (Component.demo() ? "Demo mode" : "Live"), footerHint, jobs,
       showFailPick: wf <= 1 && Component.demo() && Component.cfg().SHOW_DEMO_TOOLS !== false, failSim: S.failSim || "None", setFailSim: (e) => this.setState({ failSim: e.target.value }),
       retry: () => { this.emit("retry"); if (!Component.demo()) { this.setState({ fail: null, log: this.addLog("Retry requested") }); return; } this.setState({ failSim: "None", log: this.addLog("Retry started") }); this.runAuto(S.fail === "flyer" ? "flyer" : "excel", "None"); },
       openFlyer: () => this.flash(conf ? "Confidential listing: no public flyer was made" : "Would open \"" + flyerName + ".pdf\" (and the Canva edit link)"),
       flyerChanges: () => this.emit("request_flyer_changes") || this.flash("Sent back with your note. Data changes need re-approval; design tweaks can be made in Canva", { log: this.addLog("Flyer changes requested") }),
-      save: () => { this.emit("save_draft"); this.flash(Component.demo() ? "Draft saved to the Listing Intake sheet" : "Saving draft…"); },
+      save: () => { this.emit("save_draft"); if (Component.demo()) this.setState({ saved: true }); this.flash(Component.demo() ? "Draft saved" : "Saving…"); },
       exportXlsx: () => this.emit("export_excel") || this.flash("Would download \"" + fileName + "\" in your template layout"),
-      submit: () => issuesRaw.filter((i) => !i.warn).length ? this.flash("Fill the required fields first (see Needs attention)") : (this.emit("submit_for_review"), this.flash("Submitted. Approvers have been emailed.", { wf: 1, log: this.addLog("Submitted for review") })),
+      submit: () => nBlock ? this.flash(nBlock === 1 ? "One required field is missing" : nBlock + " required fields are missing", { tried: true, step: issuesRaw.find((i) => !i.warn).step }) : (this.emit("submit_for_review"), this.flash("Submitted. Approvers have been emailed.", { wf: 1, log: this.addLog("Submitted for review") })),
       approve: () => { this.emit("approve"); this.flash("Approved. Creating the Excel file and flyer…", { wf: 2, log: this.addLog("Approved by Natasha S. (data frozen, rev 1)") }); if (Component.demo()) this.runAuto("excel", S.failSim || "None"); },
       requestChanges: () => this.emit("request_changes") || this.flash("Sent back to Draft with your note", { wf: 0, log: this.addLog("Changes requested") }),
       publish: () => this.emit("publish") || this.flash("Published. Live on the website in about 2 minutes.", { wf: 6, preview: false, log: this.addLog("Flyer approved · published to the website") }),

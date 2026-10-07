@@ -141,7 +141,7 @@
           comp.setState(cur ? { wf: STATUS[cur].wf, fail: STATUS[cur].fail || null } : { wf: before === 1 && action === "submit_for_review" ? 0 : comp.state.wf });
           return;
         }
-        if (action === "save_draft" || action === "submit_for_review") lastSaved = fingerprint(comp);
+        if (action === "save_draft" || action === "submit_for_review") { lastSaved = fingerprint(comp); if (action === "save_draft") comp.setState({ saved: true }); }
         if (opts.quiet && res) { res.message = ""; res.log = ""; }
         apply(comp, res);
       }).catch(function (e) {
