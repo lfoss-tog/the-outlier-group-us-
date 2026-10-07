@@ -494,7 +494,7 @@ const TEAM = [
  {
   "slug": "schuyler-moffat",
   "name": "Schuyler Moffat",
-  "role": "Director of M&A",
+  "role": "Senior Business Advisor",
   "img": "assets/img/team/schuyler-moffat.jpg",
   "email": "smoffat@outliergroup.us",
   "phone": "(786) 351-4344",
@@ -508,7 +508,7 @@ const TEAM = [
   "facts": [
    [
     "Role",
-    "Director of M&A"
+    "Senior Business Advisor"
    ],
    [
     "Experience",
