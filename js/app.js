@@ -239,8 +239,8 @@
     </section>
 
     <section class="section"><div class="wrap">
-      <div class="head-row" data-reveal><div><p class="kicker">Market Insights</p><h2 class="display-2">Articles &amp; market updates</h2></div><a class="btn outline small" href="#insights">View All Market Insights ${circleArrow}</a></div>
-      <div class="insight-grid">${INSIGHTS.slice(0, 3).map(insightCard).join("")}</div>
+      <div class="head-row" data-reveal><div><p class="kicker">Market Insights</p><h2 class="display-2">Articles &amp; Market Updates</h2></div><a class="btn outline small" href="#insights">View All Market Insights ${circleArrow}</a></div>
+      <div class="insight-grid">${INSIGHTS.slice(0, 3).map((a, i) => insightCard(Object.assign({}, a, { title: titleWords(a.title) }), i)).join("")}</div>
     </div></section>
 
     <section class="section tight-top"><div class="wrap">
@@ -456,6 +456,8 @@
   /* ── Market Insights ── */
   const fmtDate = (d) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   const plain = (h) => String(h || "").replace(/<[^>]+>/g, "");
+  /* Home "Articles & Market Updates": first letter of every word in capitals */
+  const titleWords = (t) => String(t || "").replace(/(^|[\s\u2014\u2013(\/"\u201c-])(\p{Ll})/gu, (m, sep, ch) => sep + ch.toUpperCase());
   function insightCard(a, big) {
     return `<a class="insight-card${big ? " big" : ""}" href="#insight-${a.slug}" data-reveal>
       <div class="insight-img">${a.cover ? `<img src="${a.cover}" alt="" loading="lazy">` : `<div class="placeholder">${ICON.building}</div>`}<span class="pill plain">${esc(a.category)}</span></div>
