@@ -494,25 +494,25 @@ const TEAM = [
  {
   "slug": "lisa-roman-foss",
   "name": "Lisa Roman Foss",
-  "role": "Marketing Data Analyst",
+  "role": "Marketing & Business Intelligence Analyst · AI Marketing Specialist",
   "img": "assets/img/team/lisa-roman-foss.jpg",
   "email": "lfoss@outliergroup.us",
   "phone": "(774) 420-0002",
   "linkedin": "",
   "agent": null,
   "bio": [
-   "Lisa Roman Foss is a Marketing Data Analyst at The Outlier Group, where she oversees the firm’s marketing analytics, website performance and technology integrations. She brings experience in business intelligence, pricing and operations analytics and executive-level KPI reporting across the SaaS, healthcare, human resources, hospitality and consumer sectors, using Python, SQL, Power BI, Tableau and Excel to turn complex data into decision-ready insight.",
-   "Before joining the firm, Lisa served as a Data Analytics Intern in operations at Vosyn, where she analyzed pricing and operational datasets using regression and clustering methods, built Power BI dashboards to track KPIs across multiple projects and delivered executive-ready reporting to pricing, strategy and operations stakeholders. Earlier, as a Junior Client Servicing Executive at Vistaar Digital, she managed Salesforce CRM architecture, automated operational workflows with Python and developed Power BI reporting on campaign performance. She is also a co-author of SmartSetGo: A Learning Management System, published in the International Journal of Innovative Science and Research Technology.",
-   "Lisa holds a Master of Science in Data Analytics from Clark University and a Bachelor of Engineering in Information Technology from St. Francis Institute of Technology. At Clark, she served as Chair of the IEEE Student Branch, and she holds professional certifications from Microsoft, Google and LinkedIn in Power BI, Google Analytics and Tableau."
+   "Lisa Roman Foss brings a background in business intelligence, data analytics and digital marketing to The Outlier Group. Before joining the firm, she was a Data Analytics Intern at Vosyn, where she analyzed pricing and operational data using regression and clustering methods and built Power BI dashboards that tracked KPIs across multiple projects. Earlier in her career at Vistaar Digital, she managed Salesforce CRM architecture, automated workflows with Python and reported on campaign performance for agency clients.",
+   "At The Outlier Group, Lisa leads marketing analytics, digital operations and AI automation. She tracks website and campaign performance, maintains the firm’s website and develops AI agents that streamline its workflows, including the automated listing intake, approval and flyer pipeline that moves a property from submission to marketing-ready materials in a fraction of the time. Her work turns complex data and manual processes into fast, reliable systems that support the firm’s advisors and the clients they serve.",
+   "Lisa holds a Master of Science in Data Analytics from Clark University, where she served as Chair of the IEEE Student Branch, and a Bachelor of Engineering in Information Technology from St. Francis Institute of Technology. She is a co-author of published research on SmartSetGo, a learning management system, and holds certifications from Microsoft, Google and LinkedIn in Power BI, Google Analytics and Tableau."
   ],
   "facts": [
    [
     "Role",
-    "Marketing Data Analyst"
+    "Marketing & Business Intelligence Analyst · AI Marketing Specialist"
    ],
    [
     "Expertise",
-    "Business intelligence, pricing & operations analytics"
+    "Business intelligence, analytics & AI automation"
    ],
    [
     "Education",
@@ -527,7 +527,7 @@ const TEAM = [
    "Business Intelligence",
    "Marketing Analytics",
    "Power BI & Tableau",
-   "SQL & Python"
+   "AI Automation"
   ]
  },
  {
