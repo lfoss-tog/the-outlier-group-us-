@@ -309,6 +309,8 @@
   const teamBySlug = (slug) => TEAM.find((t) => t.slug === slug);
   const teamForAgent = (key) => TEAM.find((t) => t.agent === key);
   const telHref = (p) => { const d = String(p || "").replace(/\D/g, ""); return "tel:+" + (d.length === 10 ? "1" + d : d); };
+  const GH_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>';
+  const WEB_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
   const LI_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.3-.02-3-1.83-3-1.83 0-2.12 1.43-2.12 2.9V21H9z"/></svg>';
   const MAIL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 7 8.5-7"/></svg>';
   const PHONE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h3.5l1.5 5-2.2 1.3a12 12 0 0 0 6.9 6.9L16 14l5 1.5V19a2 2 0 0 1-2 2A17 17 0 0 1 3 5a2 2 0 0 1 2-2z"/></svg>';
@@ -331,6 +333,8 @@
               <a class="pc-line" href="mailto:${esc(t.email)}?subject=${encodeURIComponent("Outlier Inquiry")}">${MAIL_ICON}<span>${esc(t.email)}</span></a>
               ${t.phone ? `<a class="pc-line" href="${telHref(t.phone)}">${PHONE_ICON}<span>${esc(t.phone)}</span></a>` : `<a class="pc-line" href="${telHref(COMPANY.phone)}">${PHONE_ICON}<span>${esc(COMPANY.phone)} <small>(main office)</small></span></a>`}
               ${t.linkedin ? `<a class="pc-line" href="${esc(t.linkedin)}" target="_blank" rel="noopener">${LI_ICON}<span>LinkedIn</span></a>` : ""}
+              ${t.github ? `<a class="pc-line" href="${esc(t.github)}" target="_blank" rel="noopener">${GH_ICON}<span>GitHub</span></a>` : ""}
+              ${t.portfolio ? `<a class="pc-line" href="${esc(t.portfolio)}" target="_blank" rel="noopener">${WEB_ICON}<span>Portfolio</span></a>` : ""}
               <a class="btn primary block" href="#team-contact">Message ${esc(first)} ${ICON.arrow}</a>
             </div>
           </aside>

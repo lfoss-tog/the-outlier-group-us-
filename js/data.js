@@ -499,6 +499,8 @@ const TEAM = [
   "email": "lfoss@outliergroup.us",
   "phone": "(774) 420-0002",
   "linkedin": "",
+  "github": "https://github.com/Lisafoss22",
+  "portfolio": "",
   "agent": null,
   "bio": [
    "Lisa Roman Foss brings a background in business intelligence, data analytics and digital marketing to The Outlier Group. Before joining the firm, she was a Data Analytics Intern at Vosyn, where she analyzed pricing and operational data using regression and clustering methods and built Power BI dashboards that tracked KPIs across multiple projects. Earlier in her career at Vistaar Digital, she managed Salesforce CRM architecture, automated workflows with Python and reported on campaign performance for agency clients.",
