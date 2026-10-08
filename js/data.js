@@ -524,12 +524,12 @@ const TEAM = [
    ]
   ],
   "focus": [
-   "Canva",
-   "Google Analytics",
-   "AI Automation",
    "AI Agents",
-   "BI Analytics",
-   "Apps Script"
+   "Workflow Automation",
+   "Canva Automation",
+   "Google Apps Script",
+   "Google Analytics (GA4)",
+   "Power BI & Tableau"
   ]
  },
  {
