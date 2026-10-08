@@ -494,7 +494,7 @@ const TEAM = [
  {
   "slug": "lisa-roman-foss",
   "name": "Lisa Roman Foss",
-  "role": "Marketing & Business Intelligence Analyst · AI Marketing Specialist",
+  "role": "AI Marketing Specialist",
   "img": "assets/img/team/lisa-roman-foss.jpg",
   "email": "lfoss@outliergroup.us",
   "phone": "(774) 420-0002",
@@ -508,7 +508,7 @@ const TEAM = [
   "facts": [
    [
     "Role",
-    "Marketing & Business Intelligence Analyst · AI Marketing Specialist"
+    "AI Marketing Specialist"
    ],
    [
     "Expertise",
