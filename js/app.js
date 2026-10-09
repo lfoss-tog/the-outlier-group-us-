@@ -809,7 +809,7 @@
           <p class="addr">${ICON.pin}<span>${esc(full)}</span></p>
           ${l.headline ? `<p class="headline">${esc(l.headline)}${l.subhead ? " — " + esc(l.subhead) : ""}</p>` : ""}
         </div>
-        <div class="head-actions rise d1"><button class="btn outline" type="button" data-brochure="${l.id}">Download Property Brochure ${ICON.arrow}</button><a class="btn outline" href="#calculator-${l.id}">Run the Numbers</a><a class="btn primary" href="#inquire" id="jumpInquire">Inquire About This Property ${ICON.arrow}</a></div>
+        <div class="head-actions rise d1">${l.flyer ? `<a class="btn outline" href="${esc(l.flyer)}" target="_blank" rel="noopener" data-brochure="${l.id}" data-flyer="1">Download Property Flyer ${ICON.arrow}</a>` : `<button class="btn outline" type="button" data-brochure="${l.id}">Download Property Brochure ${ICON.arrow}</button>`}<a class="btn outline" href="#calculator-${l.id}">Run the Numbers</a><a class="btn primary" href="#inquire" id="jumpInquire">Inquire About This Property ${ICON.arrow}</a></div>
       </div>
       ${gallery(l, false)}
       <div class="prop-layout">
@@ -937,7 +937,7 @@
     if (!l.offMarket && l.lat) mapFor($("#propMap"), [l], { single: true, zoom: 15 });
     const acc = accessOf(l.id);
     if (l.offMarket && acc && acc.details && acc.details.lat) mapFor($("#propMap"), [Object.assign({}, l, { lat: acc.details.lat, lng: acc.details.lng })], { single: true, zoom: 15 });
-    $$("[data-brochure]").forEach((b) => b.addEventListener("click", () => OG.brochure(l, l.offMarket && acc ? acc.details : null, b)));
+    $$("button[data-brochure]").forEach((b) => b.addEventListener("click", () => OG.brochure(l, l.offMarket && acc ? acc.details : null, b)));
     const chk = $("#checkStatus");
     if (chk) chk.addEventListener("click", async () => {
       chk.disabled = true; chk.textContent = "Checking…";

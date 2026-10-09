@@ -691,7 +691,7 @@ const BRANDS = [
 const LISTINGS = [
   /* ── LEASE LISTINGS (spreadsheet tab "Lease listings") ── */
   {
-    id: "6416-central-ave", title: "6416 Central Ave.", headline: "Office Space with High Visibility",
+    id: "6416-central-ave", flyer: "assets/flyers/6416-central-ave.pdf", title: "6416 Central Ave.", headline: "Office Space with High Visibility",
     subhead: "Ideal for attorneys, staffing, cosmetology, and office users",
     address: "6416 Central Ave.", city: "St. Petersburg, FL 33707", county: "Pinellas",
     status: "Available", statusNote: "Available Now", deal: "Lease", type: "Office", agent: "laurie",
@@ -702,7 +702,7 @@ const LISTINGS = [
     photos: ["central-6416-1","central-6416-3","central-6416-4","central-6416-2"], lat: 27.77075, lng: -82.72477, featured: true
   },
   {
-    id: "1325-w-cass-st", title: "1325 W Cass St", headline: "Renovated Freestanding Building",
+    id: "1325-w-cass-st", flyer: "assets/flyers/1325-w-cass-st.pdf", title: "1325 W Cass St", headline: "Renovated Freestanding Building",
     subhead: "Ideal for office, medical, retail, or service users",
     address: "1325 W Cass Street", city: "Tampa, FL 33606", county: "Hillsborough",
     status: "Available", statusNote: "Active", deal: "Lease", type: "Office", typeLabel: "Office / Retail", agent: "laurie",
@@ -713,7 +713,7 @@ const LISTINGS = [
     photos: ["cass-1325-1","cass-1325-2","cass-1325-3"], lat: 27.94989, lng: -82.47296, featured: true
   },
   {
-    id: "causeway-village", title: "Causeway Village", headline: "High-Visibility Office/Retail Space",
+    id: "causeway-village", flyer: "assets/flyers/causeway-village.pdf", title: "Causeway Village", headline: "High-Visibility Office/Retail Space",
     subhead: "Ideal for a variety of professional or retail uses",
     address: "1393 Pasadena Ave S", city: "South Pasadena, FL 33707", county: "Pinellas",
     status: "Available", statusNote: "Available December 1, 2026", deal: "Lease", type: "Office", typeLabel: "Office / Retail", agent: "laurie",
@@ -746,7 +746,7 @@ const LISTINGS = [
     photos: ["armenia-4714-1","armenia-4714-2","armenia-4714-3","armenia-ave"], lat: 27.98777, lng: -82.48468
   },
   {
-    id: "bailiwick-plaza", title: "Bailiwick Plaza", headline: "800 SF in Cocoa Beach",
+    id: "bailiwick-plaza", flyer: "assets/flyers/bailiwick-plaza.pdf", title: "Bailiwick Plaza", headline: "800 SF in Cocoa Beach",
     address: "22 N Brevard Avenue", city: "Cocoa Beach, FL", county: "Brevard",
     status: "Available", statusNote: "Active", deal: "Lease", type: "Retail", typeLabel: "Retail / Office", agent: "joyce",
     space: "800 SF", building: "18,831 SF", unit: "800 SF", sfNum: 800,
@@ -756,7 +756,7 @@ const LISTINGS = [
     photos: ["bailiwick-plaza-1", "bailiwick-plaza-2", "bailiwick-plaza-3"], lat: 28.31889, lng: -80.61125
   },
   {
-    id: "sun-village", title: "Sun Village", headline: "Freestanding Retail Outparcel",
+    id: "sun-village", flyer: "assets/flyers/sun-village.pdf", title: "Sun Village", headline: "Freestanding Retail Outparcel",
     subhead: "Ideal for retail, food, or service businesses",
     address: "12300 Seminole Blvd (Suites 2 & 3)", city: "Largo, FL 33778", county: "Pinellas",
     status: "Available", statusNote: "Available Now", deal: "Lease", type: "Retail", agent: "laurie",
@@ -767,7 +767,7 @@ const LISTINGS = [
     photos: ["sun-village-1","sun-village-2","sun-village-plaza"], lat: 27.88461, lng: -82.78719, featured: true
   },
   {
-    id: "capeview-plaza", title: "Capeview Plaza", headline: "Retail Space Near Port Canaveral",
+    id: "capeview-plaza", flyer: "assets/flyers/capeview-plaza.pdf", title: "Capeview Plaza", headline: "Retail Space Near Port Canaveral",
     subhead: "Ideal for retail, food, or service businesses",
     address: "8167 Canaveral Blvd", city: "Cape Canaveral, FL 32920", county: "Brevard",
     status: "Available", statusNote: "Available Now", deal: "Lease", type: "Retail", typeLabel: "Coastal Retail Space", agent: "joyce",
@@ -788,7 +788,7 @@ const LISTINGS = [
     photos: ["art-systems-1","art-systems-center"], lat: 28.6040, lng: -81.3094
   },
   {
-    id: "colonial-commons-plaza", title: "Colonial Commons Plaza", headline: "Retail Space on E. Colonial Drive",
+    id: "colonial-commons-plaza", flyer: "assets/flyers/colonial-commons-plaza.pdf", title: "Colonial Commons Plaza", headline: "Retail Space on E. Colonial Drive",
     address: "7101 E Colonial Dr", city: "Orlando, FL 32807", county: "Orange",
     status: "Leased", statusNote: "Leased Out", deal: "Lease", type: "Retail", agent: "joyce",
     space: "3,362 SF", building: "3,362 SF", unit: "3,362 SF", sfNum: 3362,
@@ -798,7 +798,7 @@ const LISTINGS = [
     photos: ["colonial-commons-2","colonial-commons-plaza"], lat: 28.55342, lng: -81.32221
   },
   {
-    id: "grindle-village", title: "Grindle Village", headline: "Retail Space in Winter Park",
+    id: "grindle-village", flyer: "assets/flyers/grindle-village.pdf", title: "Grindle Village", headline: "Retail Space in Winter Park",
     address: "1555 N Semoran Blvd", city: "Winter Park, FL", county: "Orange",
     status: "Leased", statusNote: "Leased Out", deal: "Lease", type: "Retail", agent: "joyce",
     space: "2,400 SF", building: "14,928 SF", unit: "2,400 SF", sfNum: 2400,
@@ -808,7 +808,7 @@ const LISTINGS = [
     photos: ["grindle-village-1","grindle-village-plaza"], lat: 28.5925, lng: -81.3093
   },
   {
-    id: "6533-central-ave", title: "6533 Central Ave.", headline: "Retail Space on Central Avenue",
+    id: "6533-central-ave", flyer: "assets/flyers/6533-central-ave.pdf", title: "6533 Central Ave.", headline: "Retail Space on Central Avenue",
     address: "6533 Central Ave.", city: "St. Petersburg, FL 33710", county: "Pinellas",
     status: "Leased", statusNote: "Leased Out", deal: "Lease", type: "Retail", typeLabel: "Construction / Retail", agent: "laurie",
     space: "1,067 SF", building: "6,720 SF", unit: "1,067 SF", sfNum: 1067,
@@ -855,7 +855,7 @@ const LISTINGS = [
     photos: ["jacksonville-assembly-3", "jacksonville-assembly-1", "jacksonville-assembly-2"], lat: 30.32622, lng: -81.65792
   },
   {
-    id: "5145-gulfport-blvd", title: "5145 Gulfport Blvd S", headline: "2nd Generation Restaurant Space",
+    id: "5145-gulfport-blvd", flyer: "assets/flyers/5145-gulfport-blvd.pdf", title: "5145 Gulfport Blvd S", headline: "2nd Generation Restaurant Space",
     subhead: "Ideal for coffee, QSR, or redevelopment",
     address: "5145 Gulfport Blvd S", city: "Gulfport, FL 33707", county: "Pinellas",
     status: "Available", statusNote: "Active", deal: "Sale", type: "Retail", typeLabel: "Retail Property", agent: "laurie",

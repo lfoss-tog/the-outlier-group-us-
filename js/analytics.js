@@ -183,7 +183,7 @@
       var id = a.getAttribute("href").slice(10);
       send("select_property", { listing_id: id, list_name: pathFor(), link_type: a.closest(".map-pop") ? "map" : a.closest(".card, .opp, .feat-card, article") ? "card" : "link" });
     }
-    if ((a = t.closest("[data-brochure]"))) send("brochure_download", { listing_id: a.getAttribute("data-brochure"), version: /teaser/i.test(a.textContent) ? "teaser" : "full" });
+    if ((a = t.closest("[data-brochure]"))) send("brochure_download", { listing_id: a.getAttribute("data-brochure"), version: a.hasAttribute("data-flyer") ? "flyer" : /teaser/i.test(a.textContent) ? "teaser" : "full" });
     if ((a = t.closest("[data-nda]"))) send("nda_start", { listing_id: a.getAttribute("data-nda") });
     if ((a = t.closest('a[href^="tel:"], a[href^="mailto:"]'))) send("contact_click", { method: /^tel:/i.test(a.getAttribute("href")) ? "phone" : "email", page_path: pathFor() });
     if ((a = t.closest("#pfChips [data-status]"))) onFilter("status", a.getAttribute("data-status"));
