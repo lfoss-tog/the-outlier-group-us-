@@ -74,18 +74,18 @@ class Component extends DCLogic {
   }
   static sample() {
     return {
-  name: "", address: "2500 Central Ave", unit: "Unit B", city: "St. Petersburg", state: "FL", zip: "33713", region: "West Florida", parcel: "",
-  type: "Retail", zoning: "CCT-1 (Corridor Commercial Traditional)", demographics: "• [Population, 5-mile]\n• [Median household income]\n• [Traffic count on Central Ave]",
+  name: "", address: "2500 Central Ave", unit: "Unit B", city: "St. Petersburg", state: "FL", zip: "33713", county: "", region: "West Florida", parcel: "",
+  type: "Retail", subtype: "", zoning: "CCT-1 (Corridor Commercial Traditional)", demographics: "• [Population, 5-mile]\n• [Median household income]\n• [Traffic count on Central Ave]",
   ownerName: "[Owner name]", ownerEntity: "", ownerEmail: "[owner@email.com]", ownerPhone: "", dmName: "", dmContact: "", commPref: "Email",
   availSF: "1,850 SF", bldgSF: "6,400 SF", minDiv: "900 SF", maxCont: "1,850 SF", land: "0.28 AC", lotDim: "", yearBuilt: "1962", yearReno: "2019", buildings: "1", stories: "1",
   ceiling: "12'", curbCuts: "2", parking: "12 on-site spaces, surface", industrial: "", hvac: "", roof: "", condition: "Good", features: "Pylon signage\nFront and rear entrances\nCorner visibility", utilities: "",
-  forSale: "No", askPrice: "", investment: "Investment type", capRate: "", noi: "", taxes: "", hoa: "", occDate: "Immediately", occStatus: "Vacant", tenants: "No", leaseIncome: "No", rentRoll: "",
+  forSale: "No", askPrice: "", investment: "Investment type", capRate: "", noi: "", taxes: "", hoa: "", occDate: "Immediately", occStatus: "Vacant", previousUse: "", tenants: "No", leaseIncome: "No", rentRoll: "",
   forLease: "Yes", tenancy: "Multi-Tenant", baseRent: "$24.00", nnn: "$6.50", otherExp: "", leaseType: "NNN", term: "3–5 years", ti: "",
   usesNotAllowed: "", permits: "", environmental: "", insurance: "", photosAvail: "Yes", floorPlan: "Yes", sitePlan: "No", reports: "",
   showing: "", signage: "Yes", confidential: "No", channels: "Website, Crexi, LoopNet, email blast", agent: "Laurie Lane", status: "Available",
   headline: "Corner Retail Space on Central Avenue", idealUses: "coffee, retail, or service users",
   description: "A corner retail suite on Central Avenue with strong visibility, pylon signage and on-site parking, a short walk from the Grand Central District.",
-  highlights: "Hard corner with pylon signage\nFront and rear entrances\n12 on-site parking spaces\nWalkable to the Grand Central District", notes: ""
+  highlights: "Hard corner with pylon signage\nFront and rear entrances\n12 on-site parking spaces\nWalkable to the Grand Central District", driveLink: "", notes: ""
 };
   }
   runAuto(from, sim) {
@@ -126,43 +126,45 @@ class Component extends DCLogic {
     const autoVals = { ppsf: ppsfN ? money(ppsfN, 2) : "", grossRent: grossN ? money(grossN, 2) + " PSF" : "", monthlyRent: monthlyN ? money(Math.round(monthlyN)) : "" };
     const T = "text", A = "area", SEL = "select", YN = "yn";
     const SECTIONS = [
-      { title: "Property & Location", short: "Property & Location", moreName: "Additional property details", fields: [
-        ["name", "Property name", { vis: "web", conf: 1, ph: "Leave blank to use the address", w: 6 }],
+      { title: "Property & Location", short: "Property & Location", moreName: "Additional Property Details", fields: [
+        ["name", "Property / Listing Name", { vis: "web", conf: 1, ph: "Leave blank to use the address", w: 6 }],
         ["address", "Property address", { vis: "web", req: 1, conf: 1, w: 4 }],
         ["unit", "Unit / Suite", { vis: "web", conf: 1, added: 1, w: 2 }],
         ["city", "City", { vis: "web", req: 1, auto: 1, w: 3 }],
         ["state", "State", { vis: "web", auto: 1, w: 1 }],
-        ["zip", "Zip", { vis: "web", auto: 1, conf: 1, w: 2 }],
+        ["zip", "Zip Code", { vis: "web", auto: 1, conf: 1, w: 2 }],
+        ["county", "County", { vis: "web", ph: "e.g. Pinellas", w: 3 }],
         ["region", "Region", { vis: "web", req: 1, added: 1, kind: SEL, opts: ["West Florida", "East Florida", "North Florida", "South Florida"], w: 3 }],
-        ["type", "Property type", { vis: "web", req: 1, kind: SEL, opts: ["Retail", "Office", "Industrial", "Medical", "Land", "Other"], w: 3 }],
+        ["type", "Property Type", { vis: "web", req: 1, kind: SEL, opts: ["Retail", "Office", "Industrial", "Medical", "Land", "Other"], w: 3 }],
+        ["subtype", "Property Subtype", { vis: "web", ph: "e.g. Strip center, QSR, flex, medical office", w: 3 }],
+        ["demographics", "5-Mile Radius Demographics", { vis: "web", kind: A, ph: "One bullet per line", w: 6 }],
         ["parcel", "Parcel number(s)", { vis: "int", ph: "e.g. 23-31-16-12345-000-0010", w: 3, more: 1 }],
-        ["zoning", "Zoning", { vis: "web", w: 3, more: 1 }],
-        ["demographics", "5-mile demographics", { vis: "web", kind: A, ph: "One point per line", w: 6, more: 1 }]
+        ["zoning", "Zoning Description", { vis: "web", w: 3, more: 1 }]
       ] },
       { title: "Owner", short: "Owner", desc: "Private. Only the assigned agent and approvers see this.", fields: [
         ["ownerName", "Owner name", { vis: "res", req: 1, w: 3 }],
         ["ownerEmail", "Owner email", { vis: "res", req: 1, w: 3 }],
         ["ownerPhone", "Owner phone", { vis: "res", w: 3 }],
-        ["ownerEntity", "Owner entity", { vis: "res", ph: "LLC, Corp, Trust…", w: 3 }],
+        ["ownerEntity", "Owner Entity Name", { vis: "res", ph: "LLC, Corp, Trust…", w: 3 }],
         ["dmName", "Decision maker", { vis: "res", ph: "If different from the owner", w: 3, more: 1 }],
         ["dmContact", "Decision maker email / phone", { vis: "res", w: 3, more: 1 }],
-        ["commPref", "Preferred contact method", { vis: "res", kind: SEL, opts: ["Email", "Phone call", "Text", "Through attorney / rep"], w: 3, more: 1 }]
+        ["commPref", "Preferred Communication Method", { vis: "res", kind: SEL, opts: ["Email", "Phone call", "Text", "Through attorney / rep"], w: 3, more: 1 }]
       ] },
       { title: "Building & Site", short: "Building & Site", fields: [
-        ["availSF", "Available SF", { vis: "web", req: 1, w: 3 }],
-        ["bldgSF", "Building size (SF)", { vis: "web", req: 1, added: 1, w: 3 }],
+        ["availSF", "Total Available SF", { vis: "web", req: 1, w: 3 }],
+        ["bldgSF", "Building SF", { vis: "web", req: 1, added: 1, w: 3 }],
         ["minDiv", "Min divisible SF", { vis: "web", w: 3 }],
         ["maxCont", "Max contiguous SF", { vis: "web", w: 3 }],
         ["yearBuilt", "Year built", { vis: "web", w: 3 }],
         ["yearReno", "Year renovated", { vis: "web", w: 3 }],
-        ["features", "Features & amenities", { vis: "web", kind: A, ph: "One per line", w: 6 }],
+        ["features", "Property Features / Amenities", { vis: "web", kind: A, ph: "One per line", w: 6 }],
         ["land", "Land size", { vis: "web", ph: "Acres or SF", w: 3, more: 1 }],
         ["lotDim", "Lot dimensions", { vis: "web", w: 3, more: 1 }],
         ["buildings", "Number of buildings", { vis: "web", w: 3, more: 1 }],
-        ["stories", "Number of stories", { vis: "web", w: 3, more: 1 }],
+        ["stories", "Number of Stories / Floors", { vis: "web", w: 3, more: 1 }],
         ["ceiling", "Ceiling / clear height", { vis: "web", w: 3, more: 1 }],
         ["curbCuts", "Curb cuts / access points", { vis: "web", w: 3, more: 1 }],
-        ["parking", "Parking", { vis: "web", ph: "Ratio, spaces, type", w: 6, more: 1 }],
+        ["parking", "Parking Details", { vis: "web", ph: "Ratio, spaces, type", w: 6, more: 1 }],
         ["industrial", "Industrial specs", { vis: "web", ph: "Loading docks, drive-in doors, power", w: 6, more: 1 }],
         ["hvac", "HVAC age & condition", { vis: "int", w: 3, more: 1 }],
         ["roof", "Roof age & condition", { vis: "int", w: 3, more: 1 }],
@@ -172,17 +174,18 @@ class Component extends DCLogic {
       { title: "Sale", short: "Sale", fields: [
         ["forSale", "For sale?", { vis: "web", kind: YN, req: 1, w: 6 }],
         ["askPrice", "Asking price", { vis: "web", conf: 1, req: 1, onlyIf: "sale", w: 3 }],
-        ["investment", "Investment type", { vis: "web", kind: SEL, onlyIf: "sale", opts: ["Investment type", "Institutional", "Stabilized", "Value Add", "Redevelopment", "Owner/User", "Core+", "Core", "Net Lease", "Sale/Leaseback"], w: 3 }],
+        ["investment", "Investment Details", { vis: "web", kind: SEL, noPick: 1, onlyIf: "sale", opts: ["Investment type", "Institutional", "Stabilized", "Value Add", "Redevelopment", "Owner/User", "Core+", "Core", "Net Lease", "Sale/Leaseback"], w: 3 }],
         ["ppsf", "Price / SF", { vis: "web", conf: 1, auto: 1, calc: 1, onlyIf: "sale" }],
-        ["occStatus", "Occupancy", { vis: "web", kind: SEL, opts: ["Vacant", "Occupied", "Partial"], onlyIf: "sale", shared: 1, w: 3 }],
-        ["occDate", "Available from", { vis: "web", onlyIf: "sale", shared: 1, w: 3 }],
-        ["capRate", "Cap rate", { vis: "web", conf: 1, onlyIf: "sale", w: 3, more: 1 }],
-        ["noi", "NOI", { vis: "web", conf: 1, onlyIf: "sale", w: 3, more: 1 }],
+        ["occStatus", "Occupancy Status", { vis: "web", kind: SEL, opts: ["Vacant", "Occupied", "Partial"], onlyIf: "sale", shared: 1, w: 3 }],
+        ["occDate", "Available Occupancy Date", { vis: "web", ph: "e.g. Immediately, or 01/15/2027", onlyIf: "sale", shared: 1, w: 3 }],
+        ["previousUse", "Previous Use if Vacant", { vis: "web", ph: "e.g. Law office, restaurant", onlyIf: "sale", shared: 1, w: 6 }],
+        ["capRate", "Cap Rate (If Income-Producing)", { vis: "web", conf: 1, onlyIf: "sale", w: 3, more: 1 }],
+        ["noi", "NOI (If Applicable)", { vis: "web", conf: 1, onlyIf: "sale", w: 3, more: 1 }],
         ["taxes", "Property taxes & tax year", { vis: "int", onlyIf: "sale", w: 3, more: 1 }],
         ["hoa", "HOA / association fees", { vis: "int", onlyIf: "sale", w: 3, more: 1 }],
         ["tenants", "Existing tenants?", { vis: "int", kind: YN, onlyIf: "sale", shared: 1, w: 3, more: 1 }],
         ["leaseIncome", "Existing leases or income?", { vis: "int", kind: YN, onlyIf: "sale", shared: 1, w: 3, more: 1 }],
-        ["rentRoll", "Tenant grid / rent roll", { vis: "int", kind: A, onlyIf: "sale", shared: 1, w: 6, more: 1 }]
+        ["rentRoll", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", kind: A, ph: "Paste the Google Drive link, or upload the file under Photos & Documents", onlyIf: "sale", shared: 1, w: 6, more: 1 }]
       ] },
       { title: "Lease", short: "Lease", fields: [
         ["forLease", "For lease?", { vis: "web", kind: YN, req: 1, w: 6 }],
@@ -192,14 +195,15 @@ class Component extends DCLogic {
         ["grossRent", "Total gross rent / SF", { vis: "web", conf: 1, auto: 1, calc: 1, onlyIf: "lease" }],
         ["monthlyRent", "Total monthly rent", { vis: "web", conf: 1, auto: 1, calc: 1, onlyIf: "lease" }],
         ["leaseType", "Lease type", { vis: "web", kind: SEL, opts: ["NNN", "Gross", "Modified Gross"], onlyIf: "lease", w: 3 }],
-        ["term", "Lease term", { vis: "web", ph: "e.g. 3–5 years", onlyIf: "lease", w: 3 }],
-        ["occStatus", "Occupancy", { vis: "web", kind: SEL, opts: ["Vacant", "Occupied", "Partial"], onlyIf: "lease", shared: 1, w: 3 }],
-        ["occDate", "Available from", { vis: "web", onlyIf: "lease", shared: 1, w: 3 }],
-        ["tenancy", "Tenancy", { vis: "web", kind: SEL, opts: ["Single-Tenant", "Multi-Tenant"], onlyIf: "lease", w: 3, more: 1 }],
+        ["term", "Lease Term Limits (Min / Max)", { vis: "web", ph: "e.g. 3–5 years", onlyIf: "lease", w: 3 }],
+        ["occStatus", "Occupancy Status", { vis: "web", kind: SEL, opts: ["Vacant", "Occupied", "Partial"], onlyIf: "lease", shared: 1, w: 3 }],
+        ["occDate", "Available Occupancy Date", { vis: "web", ph: "e.g. Immediately, or 01/15/2027", onlyIf: "lease", shared: 1, w: 3 }],
+        ["previousUse", "Previous Use if Vacant", { vis: "web", ph: "e.g. Law office, restaurant", onlyIf: "lease", shared: 1, w: 6 }],
+        ["tenancy", "Tenancy Type", { vis: "web", kind: SEL, opts: ["Single-Tenant", "Multi-Tenant"], onlyIf: "lease", w: 3, more: 1 }],
         ["ti", "TI allowance", { vis: "int", onlyIf: "lease", w: 3, more: 1 }],
         ["tenants", "Existing tenants?", { vis: "int", kind: YN, onlyIf: "lease", shared: 1, w: 3, more: 1 }],
         ["leaseIncome", "Existing leases or income?", { vis: "int", kind: YN, onlyIf: "lease", shared: 1, w: 3, more: 1 }],
-        ["rentRoll", "Tenant grid / rent roll", { vis: "int", kind: A, onlyIf: "lease", shared: 1, w: 6, more: 1 }]
+        ["rentRoll", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", kind: A, ph: "Paste the Google Drive link, or upload the file under Photos & Documents", onlyIf: "lease", shared: 1, w: 6, more: 1 }]
       ] },
       { title: "Compliance", short: "Compliance", fields: [
         ["environmental", "Environmental concerns", { vis: "int", kind: A, ph: "None known, or describe", w: 6 }],
@@ -213,10 +217,11 @@ class Component extends DCLogic {
       ] },
       { title: "Photos & Documents", short: "Photos & Documents", upload: 1, fields: [] },
       { title: "Marketing", short: "Marketing", fields: [
-        ["headline", "Headline", { vis: "web", req: 1, ph: "e.g. 2nd Generation Restaurant Space", w: 6 }],
-        ["idealUses", "Ideal for", { vis: "web", ph: "e.g. coffee, retail or service users", w: 6 }],
-        ["description", "Marketing description", { vis: "web", req: 1, kind: A, w: 6, tall: 1 }],
-        ["highlights", "Highlights", { vis: "web", kind: A, ph: "One per line", w: 6 }],
+        ["headline", "Listing Subheader", { vis: "web", req: 1, ph: "A short line with quick context and your strongest point, e.g. 2nd Generation Restaurant Space", w: 6 }],
+        ["idealUses", "Ideal Uses", { vis: "web", ph: "e.g. coffee, retail or service users", w: 6 }],
+        ["description", "Marketing Description", { vis: "web", req: 1, kind: A, ph: "Paragraph form", w: 6, tall: 1 }],
+        ["highlights", "Highlight Features", { vis: "web", kind: A, ph: "One bullet per line", w: 6 }],
+        ["driveLink", "Google Drive Folder Link", { vis: "int", ph: "https://drive.google.com/drive/folders/…", w: 6, check: (x) => !String(x || "").trim() ? "" : !/^https:\/\/\S+$/i.test(String(x).trim()) ? "Paste the full link, starting with https://" : !/^https:\/\/(drive|docs)\.google\.com\//i.test(String(x).trim()) ? "This is not a Google Drive link. Check it before submitting." : "" }],
         ["agent", "Assigned agent", { vis: "web", req: 1, kind: SEL, opts: ["Laurie Lane", "Joyce Teixeira", "Mackinley Autrey", "Jason Clemmey", "Christopher Delcore", "Outlier Solutions Team"], w: 3 }],
         ["status", "Listing status", { vis: "web", req: 1, added: 1, kind: SEL, opts: ["Available", "Pending", "Leased", "Sold"], w: 3 }],
         ["confidential", "Confidential listing?", { vis: "int", kind: YN, w: 6, hintIf: "Yes", hintText: "The website shows a locked teaser. Address, photos and pricing are released after an approved NDA." }],
@@ -241,6 +246,9 @@ class Component extends DCLogic {
     // required / issues
     const issuesRaw = [];
     SECTIONS.forEach((sec, si) => sec.fields.forEach(([key, label, fd]) => { if (fd.req && active(fd) && !sharedHidden(si, fd) && isEmpty(key, fd)) issuesRaw.push({ step: si + 1, text: label.replace(/ \(.*\)$/, "") + " is required" }); }));
+    const dl = String(v.driveLink || "").trim();
+    if (dl && !/^https:\/\/\S+$/i.test(dl)) issuesRaw.push({ step: 8, text: "Google Drive Folder Link must be a full link starting with https://" });
+    else if (dl && !/^https:\/\/(drive|docs)\.google\.com\//i.test(dl)) issuesRaw.push({ step: 8, text: "Google Drive Folder Link is not a drive.google.com link", warn: 1 });
     if (!sale && !lease) issuesRaw.push({ step: 4, text: "Choose For Sale, For Lease, or both" });
     const street = String(v.address || "").replace(/^\d+\s*/, "").split(/\s+/)[0];
     if (conf && street && new RegExp("\\b" + street + "\\b", "i").test(v.description || "")) issuesRaw.push({ step: 8, text: "Description names the street (\"" + street + "\") on a confidential listing", warn: 1 });
@@ -252,17 +260,23 @@ class Component extends DCLogic {
     // current section fields: primary fields first, secondary ones under "Additional details"
     const seen = S.seen || {}, showReq = !!S.tried || !!seen[step];
     const ERR = "#9B2C2C";
-    const mkField = ([key, label, fd]) => {
-      const kind = fd.kind || T, vis = visOf(fd), val = valOf(key, fd), missing = fd.req && !String(val).trim(), flag = missing && showReq;
-      const hint = flag ? "Required" : (key === "address" && step === 1 && val ? "✓ Added" : (fd.hintIf && val === fd.hintIf ? fd.hintText : ""));
+    const PICK = "Select…";
+    const SMALL = /^(a|an|and|as|at|by|for|if|in|of|on|or|per|the|to|vs|via|with)$/i;
+    const titleCase = (t) => { const parts = String(t).split(/(\s+|\/|-)/), words = parts.map((w, i) => /\w/.test(w) ? i : -1).filter((i) => i >= 0), first = words[0], last = words[words.length - 1];
+      return parts.map((w, i) => !/\w/.test(w) || /[A-Z]{2,}|^\d/.test(w) ? w : (i !== first && i !== last && SMALL.test(w) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1))).join(""); };
+    const mkField = ([key, rawLabel, fd]) => {
+      const label = titleCase(rawLabel);
+      const kind = fd.kind || T, vis = visOf(fd), val = valOf(key, fd), missing = fd.req && !String(val).trim(), bad = fd.check ? fd.check(val) : "", flag = (missing && showReq) || /^Paste/.test(bad);
+      const hint = missing && showReq ? "Required" : bad ? bad : (key === "address" && step === 1 && val ? "✓ Added" : (fd.hintIf && val === fd.hintIf ? fd.hintText : ""));
       return { id: "f_" + key, label, req: !!fd.req, val, ph: fd.ph || "", vis, visLabel: BADGE[vis][0], auto: !!fd.auto, added: !!fd.added,
-        isText: kind === T, isArea: kind === A, isSelect: kind === SEL, isYN: kind === YN, opts: fd.opts || [],
-        set: (e) => { if (!fd.calc) this.setVal(key, e.target.value); },
+        isText: kind === T, isArea: kind === A, isSelect: kind === SEL, isYN: kind === YN,
+        opts: kind === SEL && !fd.noPick ? [PICK].concat(fd.opts || []) : (fd.opts || []), selVal: kind === SEL && !fd.noPick && !val ? PICK : val, picked: !!val && val !== PICK,
+        set: (e) => { if (!fd.calc) this.setVal(key, e.target.value === PICK ? "" : e.target.value); },
         yes: () => this.setVal(key, "Yes"), no: () => this.setVal(key, "No"),
         yesStyle: val === "Yes" ? segOn : segOff, noStyle: val === "No" ? segOn : segOff,
         span: "grid-column: span " + (fd.w || 3),
-        inStyle: (flag ? "border-color:" + ERR + ";" : "") + (kind === A ? "min-height:" + (fd.tall ? 168 : 120) + "px;" : ""),
-        hasHint: !!hint, hint, hintStyle: "margin:0;font-size:13px;color:" + (flag ? ERR : "#6F6C68") };
+        inStyle: (flag ? "border-color:" + ERR + ";" : "") + (kind === SEL && !fd.noPick && !val ? "color:#8A8782;" : "") + (kind === A ? "min-height:" + (fd.tall ? 168 : 120) + "px;" : ""),
+        hasHint: !!hint, hint, hintStyle: "margin:0;font-size:13px;color:" + (flag || bad ? ERR : "#6F6C68") };
     };
     const sec = SECTIONS[step - 1];
     const visible = sec ? sec.fields.filter(([, , fd]) => active(fd) && !sharedHidden(step - 1, fd) && !fd.calc) : [];
@@ -355,7 +369,7 @@ class Component extends DCLogic {
       mobileStep: "Step " + step + " of 9",
       confLine: conf && (step === 1 || step === 7) ? "Confidential listing · the address, photos and pricing are released only under NDA." : "", hasConfLine: conf && (step === 1 || step === 7),
       hasFields: fields.length > 0, moreFields, hasMore: moreAll.length > 0, moreOpen, toggleMore: () => this.setState({ more: Object.assign({}, S.more || {}, { [step]: !moreOpen }) }),
-      moreLabel: (sec && sec.moreName) || "Additional details", moreSign: moreOpen ? "−" : "+",
+      moreLabel: (sec && sec.moreName) || "Additional Details", moreCount: moreAll.length + (moreAll.length === 1 ? " field" : " fields") + (moreFilled ? " · " + moreFilled + " filled" : ""), moreSign: moreOpen ? "−" : "+",
       calcLine, hasCalc: !!calcLine, moreExp: moreOpen ? "true" : "false", adminExp: S.admin ? "true" : "false",
       photoList, docList, photoCount: imgs.length, docCount: docs.length, hasPhotos: imgs.length > 0, hasDocs: docs.length > 0,
       docCats: ["Brochure / Flyer", "Floor Plan", "Site Plan / Survey", "Rent Roll", "Property Report", "Environmental Report", "Other"],
@@ -394,7 +408,7 @@ class Component extends DCLogic {
       preview: S.preview, openPreview: () => this.setState({ preview: true }), closePreview: () => this.setState({ preview: false }),
       isConf: conf, pvHeading: conf ? "Locked off-market card and teaser" : "Listing card and property page",
       pvStatus: conf ? "Off-Market" : (v.status || "Available"), pvPillStyle: conf ? "background:#141414;color:#fff" : v.status === "Pending" ? "background:#5A5752;color:#fff" : "background:#141414;color:#fff",
-      pvType: typ, pvLoc: conf ? [v.city, v.region].filter(Boolean).join(" · ") : [addrFull, [v.city, v.state].filter(Boolean).join(", ") + " " + (v.zip || "")].filter(Boolean).join(", "),
+      pvType: typ + (v.subtype ? " · " + v.subtype : ""), pvLoc: conf ? [v.city, v.region].filter(Boolean).join(" · ") : [addrFull, [v.city, v.state].filter(Boolean).join(", ") + " " + (v.zip || "")].filter(Boolean).join(", "),
       pvSpace: conf ? (v.availSF || "—") : [v.unit, v.availSF].filter(Boolean).join(" – ") || "—", pvBldg: v.bldgSF || "—", pvMin: v.minDiv || "—",
       pvAgent: v.agent || "—", pvBtn: conf ? "Request Access" : "Inquire", pvBtnStyle: "font-size:13px;font-weight:500;padding:8px 14px;border-radius:999px;color:#fff;background:" + (conf ? "#141414" : "#141414"),
       pvHeadline: (v.headline || "") + (v.idealUses ? " — Ideal for " + v.idealUses.replace(/^ideal for\s*/i, "") : ""),

@@ -6,7 +6,7 @@
    elements, generous space, almost no borders or cards.
    ════════════════════════════════════════════════════════════ */
 html,body{margin:0;height:100%}
-body{background:#FFFFFF;color:#000;font-family:"Montserrat","Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased}
+body{background:#FFFFFF;color:#000;font-family:"Montserrat","Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.55;overflow:hidden;-webkit-font-smoothing:antialiased}
 a{color:#000}
 .li-shell{position:relative;display:flex;flex-direction:column;height:100vh;background:#FFFFFF}
 .li-shell *,.li-shell *::before,.li-shell *::after{box-sizing:border-box}
@@ -34,26 +34,32 @@ a{color:#000}
 .li-col{max-width:760px;margin:0 auto;padding:48px 48px 96px}
 .li-mstep{display:none;margin:0 0 10px;font-size:13px;letter-spacing:.12em;color:#6F6C68}
 .li-title{font-family:"Cormorant Garamond",Garamond,Georgia,serif;font-weight:600;font-size:46px;line-height:1.08;letter-spacing:0;margin:0}
-.li-desc{margin:14px 0 0;font-size:15px;color:#6F6C68;max-width:56ch}
+.li-desc{margin:14px 0 0;font-size:16px;color:#6F6C68;max-width:56ch}
 
 /* Fields */
 .li-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:32px 24px;margin-top:48px}
 .f{display:flex;flex-direction:column;gap:10px;min-width:0}
-.lbl{font-size:13px;font-weight:500;letter-spacing:.02em;color:#282626;display:flex;gap:4px;line-height:1.3}
-.req{color:#B5B2AD;font-weight:400}
+.lbl{font-size:14px;font-weight:600;letter-spacing:.01em;color:#000;display:flex;gap:4px;line-height:1.35}
+.req{color:#6F6C68;font-weight:500}
 .in{box-sizing:border-box;width:100%;min-height:52px;padding:12px 16px;border-radius:10px;border:1px solid rgba(0,0,0,.14);background:#FFFFFF;color:#000;font:inherit;font-size:16px;transition:border-color .2s,box-shadow .2s}
-.in::placeholder{color:#B5B2AD}
+.in::placeholder{color:#8A8782}
 .in:hover{border-color:rgba(0,0,0,.28)}
 .in:focus{outline:none;border-color:#000;box-shadow:0 0 0 4px rgba(0,0,0,.05)}
 textarea.in{min-height:120px;line-height:1.6;resize:vertical}
-select.in{appearance:auto}
+select.in{-webkit-appearance:none;appearance:none;cursor:pointer;padding-right:48px;background-color:#F7F7F6;border-color:rgba(0,0,0,.28);font-weight:500;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 18px center;background-size:14px}
+select.in:hover{border-color:#000;background-color:#F1F0EE}
+select.in:focus{background-color:#FFFFFF}
+select.in option{color:#000;font-weight:400}
 .seg{display:inline-flex;align-self:flex-start;border:1px solid rgba(0,0,0,.14);border-radius:999px;padding:4px;gap:4px}
 .seg button{min-width:76px;min-height:42px;padding:0 18px;border-radius:999px;border:0;font:inherit;font-size:15px;cursor:pointer;transition:background .2s,color .2s}
 .li-calc{margin:28px 0 0;font-size:14px;color:#6F6C68;font-variant-numeric:tabular-nums;white-space:pre-wrap}
-.li-more{margin-top:48px;padding-top:28px;border-top:1px solid rgba(0,0,0,.07)}
-.li-moretoggle{display:inline-flex;align-items:center;gap:12px;min-height:44px;padding:0;border:0;background:none;font:inherit;font-size:15px;color:#282626;cursor:pointer}
+.li-more{margin-top:44px}
+.li-moretoggle{display:flex;align-items:center;gap:14px;width:100%;min-height:60px;padding:0 20px;border:1px solid rgba(0,0,0,.28);border-radius:12px;background:#F7F7F6;font:inherit;font-size:16px;font-weight:600;color:#000;cursor:pointer;text-align:left;transition:background .2s,border-color .2s}
+.li-moretoggle:hover{border-color:#000;background:#F1F0EE}
+.li-moretoggle[aria-expanded=true]{background:#FFFFFF;border-color:#000}
+.li-morecount{margin-left:auto;font-size:13px;font-weight:500;color:#6F6C68}
 .li-moretoggle:hover{color:#000}
-.li-sign{width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.2);display:inline-flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
+.li-sign{width:26px;height:26px;border-radius:50%;border:1.5px solid #000;font-weight:600;display:inline-flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
 
 /* Uploads */
 .li-drop{margin-top:48px;color:#282626}

@@ -32,7 +32,7 @@
 <div style="flex-grow: 1"></div>
 <span class="li-status">{{statusText}}</span>
 <button class="li-link li-quiet" type="button" onClick="{{openPreview}}">Preview</button>
-<button class="li-link" type="button" onClick="{{openDrawer}}" aria-haspopup="dialog">Listing summary<sc-if value="{{summaryDot}}" hint-placeholder-val="{{false}}"><span class="li-dot" aria-label="needs attention"></span></sc-if></button>
+<button class="li-link" type="button" onClick="{{openDrawer}}" aria-haspopup="dialog">Listing Summary<sc-if value="{{summaryDot}}" hint-placeholder-val="{{false}}"><span class="li-dot" aria-label="needs attention"></span></sc-if></button>
 </header>
 
 <div class="li-body">
@@ -60,7 +60,7 @@
 <label class="lbl" for="{{f.id}}">{{f.label}}<sc-if value="{{f.req}}" hint-placeholder-val="{{false}}"><span class="req" aria-label="required">*</span></sc-if></label>
 <sc-if value="{{f.isText}}" hint-placeholder-val="{{true}}"><input class="in" id="{{f.id}}" value="{{f.val}}" placeholder="{{f.ph}}" onChange="{{f.set}}" style="{{f.inStyle}}"></sc-if>
 <sc-if value="{{f.isArea}}" hint-placeholder-val="{{false}}"><textarea class="in" id="{{f.id}}" value="{{f.val}}" placeholder="{{f.ph}}" onChange="{{f.set}}" style="{{f.inStyle}}"></textarea></sc-if>
-<sc-if value="{{f.isSelect}}" hint-placeholder-val="{{false}}"><select class="in" id="{{f.id}}" value="{{f.val}}" onChange="{{f.set}}" style="{{f.inStyle}}"><sc-for list="{{f.opts}}" as="o" hint-placeholder-count="4"><option>{{o}}</option></sc-for></select></sc-if>
+<sc-if value="{{f.isSelect}}" hint-placeholder-val="{{false}}"><select class="in" id="{{f.id}}" value="{{f.selVal}}" onChange="{{f.set}}" style="{{f.inStyle}}"><sc-for list="{{f.opts}}" as="o" hint-placeholder-count="4"><option>{{o}}</option></sc-for></select></sc-if>
 <sc-if value="{{f.isYN}}" hint-placeholder-val="{{false}}"><div class="seg" role="group" aria-label="{{f.label}}"><button type="button" id="{{f.id}}" onClick="{{f.yes}}" style="{{f.yesStyle}}">Yes</button><button type="button" onClick="{{f.no}}" style="{{f.noStyle}}">No</button></div></sc-if>
 <sc-if value="{{f.hasHint}}" hint-placeholder-val="{{false}}"><p style="{{f.hintStyle}}">{{f.hint}}</p></sc-if>
 </div>
@@ -72,7 +72,7 @@
 
 <sc-if value="{{hasMore}}" hint-placeholder-val="{{false}}">
 <div class="li-more">
-<button type="button" class="li-moretoggle" onClick="{{toggleMore}}" aria-expanded="{{moreExp}}"><span class="li-sign" aria-hidden="true">{{moreSign}}</span>{{moreLabel}}</button>
+<button type="button" class="li-moretoggle" onClick="{{toggleMore}}" aria-expanded="{{moreExp}}"><span class="li-sign" aria-hidden="true">{{moreSign}}</span>{{moreLabel}}<span class="li-morecount">{{moreCount}}</span></button>
 <sc-if value="{{moreOpen}}" hint-placeholder-val="{{false}}">
 <div class="li-grid" style="margin-top: 32px">
 <sc-for list="{{moreFields}}" as="f" hint-placeholder-count="4">
@@ -80,7 +80,7 @@
 <label class="lbl" for="{{f.id}}">{{f.label}}</label>
 <sc-if value="{{f.isText}}" hint-placeholder-val="{{true}}"><input class="in" id="{{f.id}}" value="{{f.val}}" placeholder="{{f.ph}}" onChange="{{f.set}}" style="{{f.inStyle}}"></sc-if>
 <sc-if value="{{f.isArea}}" hint-placeholder-val="{{false}}"><textarea class="in" id="{{f.id}}" value="{{f.val}}" placeholder="{{f.ph}}" onChange="{{f.set}}" style="{{f.inStyle}}"></textarea></sc-if>
-<sc-if value="{{f.isSelect}}" hint-placeholder-val="{{false}}"><select class="in" id="{{f.id}}" value="{{f.val}}" onChange="{{f.set}}" style="{{f.inStyle}}"><sc-for list="{{f.opts}}" as="o" hint-placeholder-count="4"><option>{{o}}</option></sc-for></select></sc-if>
+<sc-if value="{{f.isSelect}}" hint-placeholder-val="{{false}}"><select class="in" id="{{f.id}}" value="{{f.selVal}}" onChange="{{f.set}}" style="{{f.inStyle}}"><sc-for list="{{f.opts}}" as="o" hint-placeholder-count="4"><option>{{o}}</option></sc-for></select></sc-if>
 <sc-if value="{{f.isYN}}" hint-placeholder-val="{{false}}"><div class="seg" role="group" aria-label="{{f.label}}"><button type="button" id="{{f.id}}" onClick="{{f.yes}}" style="{{f.yesStyle}}">Yes</button><button type="button" onClick="{{f.no}}" style="{{f.noStyle}}">No</button></div></sc-if>
 <sc-if value="{{f.hasHint}}" hint-placeholder-val="{{false}}"><p style="{{f.hintStyle}}">{{f.hint}}</p></sc-if>
 </div>
@@ -158,7 +158,7 @@
 <div class="li-scrim" onClick="{{closeDrawer}}"></div>
 <aside class="li-drawer" role="dialog" aria-modal="true" aria-labelledby="drTitle">
 <div class="row" style="justify-content: space-between; align-items: baseline">
-<h2 id="drTitle" class="li-title" style="font-size: 32px; margin: 0">Listing summary</h2>
+<h2 id="drTitle" class="li-title" style="font-size: 32px; margin: 0">Listing Summary</h2>
 <button class="li-link" type="button" onClick="{{closeDrawer}}">Close</button>
 </div>
 
@@ -180,9 +180,9 @@
 </div>
 
 <div class="row" style="gap: 12px; flex-wrap: wrap">
-<button class="btn" type="button" onClick="{{openPreview}}">Preview on website</button>
+<button class="btn" type="button" onClick="{{openPreview}}">Preview on Website</button>
 <button class="btn" type="button" onClick="{{exportXlsx}}">Export to Excel</button>
-<button class="li-link" type="button" onClick="{{save}}">Save now</button>
+<button class="li-link" type="button" onClick="{{save}}">Save Now</button>
 </div>
 
 <div>
@@ -205,7 +205,7 @@
 </sc-if>
 
 <div>
-<button type="button" class="li-moretoggle" onClick="{{toggleAdmin}}" aria-expanded="{{adminExp}}"><span class="li-sign" aria-hidden="true">{{adminSign}}</span>Admin view</button>
+<button type="button" class="li-moretoggle" onClick="{{toggleAdmin}}" aria-expanded="{{adminExp}}"><span class="li-sign" aria-hidden="true">{{adminSign}}</span>Admin View</button>
 <sc-if value="{{admin}}" hint-placeholder-val="{{false}}">
 <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 18px">
 <div>
