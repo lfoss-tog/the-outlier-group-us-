@@ -685,21 +685,20 @@
     const l = byId(id), open = LISTINGS.filter(leaseOpen), sel = leaseOpen(l) ? l : null;
     TP.files = [];
     const opts = open.map((x) => `<option value="${esc(x.id)}"${sel && sel.id === x.id ? " selected" : ""}>${esc(x.title)} · ${esc(x.city)}</option>`).join("");
-    return pageHead("Tenant Portal", "Apply to lease a space with The Outlier Group. Complete the application, then upload your financial documents securely. An advisor will follow up within one business day.", "Tenant Portal") + `
-    <section class="section tight-top"><div class="wrap">
-      <ol class="tp-steps" data-reveal><li><b>1</b><span>Complete the application</span></li><li><b>2</b><span>Upload financial documents</span></li><li><b>3</b><span>Our team reviews and follows up</span></li></ol>
-      ${sel ? `<div class="tp-for" data-reveal><span>Applying for</span><b>${esc(sel.title)}</b><span>${esc([sel.address, sel.city].filter(Boolean).join(", "))}</span><a href="#property-${esc(sel.id)}">View property</a></div>` : ""}
+    return pageHead("Tenant Portal", "Complete the application, then upload your financial documents.", "Tenant Portal") + `
+    <section class="section tight-top"><div class="wrap tp-wrap">
+      ${sel ? `<p class="tp-for" data-reveal>Applying for <b>${esc(sel.title)}</b>, ${esc([sel.address, sel.city].filter(Boolean).join(", "))} · <a href="#property-${esc(sel.id)}">View property</a></p>` : ""}
       <div class="tp-grid">
         <div class="tp-main">
-          <section class="panel tp-panel" id="tpApp" data-reveal>
+          <section class="tp-panel" id="tpApp" data-reveal>
             <h2 class="display-3">1. Tenant application</h2>
             <p class="muted">About 10 minutes. ${sel ? `Under <b>Property Location</b>, enter <b>${esc(sel.title)}</b>.` : "Under <b>Property Location</b>, enter the property you're applying for."}</p>
             <div class="tp-frame"><iframe src="${TENANT_FORM}?embedded=true" title="Tenant application form" loading="lazy">Loading…</iframe></div>
             <p class="tp-alt"><a href="${TENANT_FORM}" target="_blank" rel="noopener">Open the application in a new tab ${ICON.arrow}</a></p>
           </section>
-          <form class="panel form-grid tp-panel" id="tenantDocs" novalidate data-reveal>
+          <form class="form-grid tp-panel" id="tenantDocs" novalidate data-reveal>
             <h2 class="display-3">2. Upload financial documents</h2>
-            <p class="muted">Upload the documents your advisor asked for. They go straight to a private folder that only The Outlier Group's leasing team can open.</p>
+            <p class="muted">Bank statements, tax returns and financial statements. Files are saved privately for our leasing team only.</p>
             <div class="row"><div class="field"><label for="tName">Full name</label><input class="input" id="tName" name="name" required autocomplete="name"></div>
             <div class="field"><label for="tEmail">Email</label><input class="input" id="tEmail" name="email" type="email" required autocomplete="email"></div></div>
             <div class="row"><div class="field"><label for="tPhone">Phone</label><input class="input" id="tPhone" name="phone" type="tel" autocomplete="tel"></div>
@@ -712,14 +711,6 @@
             <div class="form-msg" id="tenantMsg" hidden></div>
           </form>
         </div>
-        <aside class="tp-side">
-          <div class="panel" data-reveal><h3>Documents to have ready</h3><ul class="tp-check">
-            <li>Last 3–6 months of business bank statements</li><li>Last 2 years of business tax returns</li><li>Personal tax returns for each guarantor</li><li>Current profit &amp; loss statement and balance sheet</li><li>Articles of organization or business license</li><li>Government-issued photo ID</li></ul>
-            <p class="muted small">Your advisor will tell you if anything else is needed for this space.</p></div>
-          <div class="panel" data-reveal><h3>${ICON.lock} How your documents are protected</h3><ul class="tp-check">
-            <li>Saved in a private, access-restricted company folder</li><li>Never published on the website and never sent as email attachments</li><li>Only The Outlier Group's leasing team can open them</li><li>Not saved in your browser after you leave this page</li></ul></div>
-          <div class="panel" data-reveal><h3>Questions?</h3><p class="muted">Call <a href="tel:${esc(COMPANY.phone)}">${esc(COMPANY.phone)}</a> or email <a href="mailto:${esc(COMPANY.email)}">${esc(COMPANY.email)}</a>.</p></div>
-        </aside>
       </div>
     </div></section>`;
   }
