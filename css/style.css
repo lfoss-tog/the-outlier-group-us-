@@ -1267,3 +1267,37 @@ h3, h4, .display-3 { font-weight: 600; line-height: 1.2; }
 /* Oct 2026 updates: no wordmark on Home (the OG monogram stays), justified team bios */
 body.is-home .site-header .brand { visibility: hidden; }
 .profile-bio p { text-align: justify; text-justify: inter-word; hyphens: auto; -webkit-hyphens: auto; }
+
+/* ── Tenant Portal ── */
+.tp-steps { list-style: none; margin: 0 0 28px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.tp-steps li { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); font-family: var(--ui); font-size: .95rem; }
+.tp-steps b { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: .85rem; }
+.tp-for { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin: 0 0 28px; padding: 16px 20px; border: 1px solid var(--ink); border-radius: var(--radius); font-family: var(--ui); }
+.tp-for span:first-child { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.tp-for b { font-size: 1.1rem; } .tp-for span { color: var(--muted); } .tp-for a { margin-left: auto; text-decoration: underline; text-underline-offset: 3px; }
+.tp-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 48px); align-items: start; }
+.tp-main { display: grid; gap: 28px; min-width: 0; }
+.tp-side { display: grid; gap: 20px; position: sticky; top: 100px; }
+.tp-panel h2 { font-size: clamp(1.5rem, 2.4vw, 1.9rem); margin-bottom: 8px; }
+.tp-frame { margin-top: 18px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #fff; }
+.tp-frame iframe { display: block; width: 100%; height: 1500px; border: 0; }
+.tp-alt { margin: 12px 0 0; font-family: var(--ui); } .tp-alt a { text-decoration: underline; text-underline-offset: 3px; }
+.tp-drop { position: relative; display: grid; gap: 6px; place-items: center; text-align: center; padding: 30px 20px; border: 1.5px dashed var(--line-2, var(--line)); border-radius: var(--radius); cursor: pointer; font-family: var(--ui); transition: border-color .2s, background .2s; }
+.tp-drop:hover, .tp-drop.over, .tp-drop:focus-within { border-color: var(--ink); background: var(--bg-2, transparent); }
+.tp-drop input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.tp-drop-main { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; } .tp-drop-main svg { width: 16px; height: 16px; }
+.tp-drop-sub { font-size: .82rem; color: var(--muted); }
+.tp-files { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.tp-files:empty { display: none; }
+.tp-files li { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(150px, 210px) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-family: var(--ui); font-size: .9rem; }
+.tp-files .input { min-height: 0; padding: 8px 10px; font-size: .85rem; }
+.tp-fname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .tp-fsize { color: var(--muted); font-size: .8rem; }
+.tp-rm { border: 0; background: none; padding: 4px 0; font: inherit; font-size: .82rem; text-decoration: underline; text-underline-offset: 3px; color: var(--ink); cursor: pointer; }
+.tp-consent { display: flex; gap: 10px; align-items: flex-start; font-family: var(--ui); font-size: .9rem; line-height: 1.5; } .tp-consent input { margin-top: 4px; flex: none; }
+.tp-check { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-family: var(--ui); font-size: .92rem; line-height: 1.5; }
+.tp-side h3 { display: flex; align-items: center; gap: 8px; } .tp-side h3 svg { width: 16px; height: 16px; }
+.tp-side .small { font-size: .82rem; margin: 14px 0 0; }
+.contact-card.tenant-link { display: block; color: inherit; text-decoration: none; border-color: var(--ink); }
+.contact-card.tenant-link b { display: inline-flex; align-items: center; gap: 8px; font-size: 1.05rem; } .contact-card.tenant-link svg { width: 16px; height: 16px; }
+@media (max-width: 900px) { .tp-grid { grid-template-columns: 1fr; } .tp-side { position: static; } .tp-steps { grid-template-columns: 1fr; } .tp-frame iframe { height: 1700px; } }
+@media (max-width: 560px) { .tp-files li { grid-template-columns: minmax(0, 1fr) auto; } .tp-files li select { grid-column: 1 / -1; } .tp-for a { margin-left: 0; } }

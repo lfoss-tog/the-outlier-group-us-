@@ -13,7 +13,7 @@ const COMPANY = {
   legal: "The Outlier Group, LLC",
   tagline: "Real estate, uncomplicated.",
   phone: "1-888-966-4820",
-  email: "solutions@outliergroup.us",
+  email: "outreach@outliergroup.us",
   address: "260 1st Ave S., Unit #1, St. Petersburg, FL",
   license: "CQ1052317",
   social: {

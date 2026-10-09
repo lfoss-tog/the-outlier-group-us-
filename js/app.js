@@ -443,6 +443,7 @@
         <div class="contact-card" data-reveal><span>Email</span><b>${esc(COMPANY.email)}</b></div>
         <div class="contact-card" data-reveal><span>Office</span><b>${esc(COMPANY.address)}</b></div>
         <div class="contact-card" data-reveal><span>Brokerage License</span><b>${esc(COMPANY.license)}</b></div>
+        <a class="contact-card tenant-link" href="#tenant-portal" data-reveal><span>Applying for a space?</span><b>Start your tenant application ${ICON.arrow}</b></a>
       </div>
       <form class="panel form-grid" id="contactForm" novalidate data-reveal>
         <h3 class="display-3" style="font-size:1.8rem">Send us a message</h3>
@@ -671,6 +672,114 @@
     </div></section>`;
   }
 
+  /* ── Tenant Portal: Google Form application + secure financial-document upload ──
+     The application is the company's Google Form (embedded). Documents are sent to the website
+     Apps Script, which saves them in a private, access-restricted Drive folder. Nothing is stored
+     in the browser, in this code or in the repository, and documents are never emailed. */
+  const TENANT_FORM = "https://docs.google.com/forms/d/1nOa_JBVqpEfUq6MBme78GxF7-mzyQ5cDN3zwT0JMEQ4/viewform";
+  const TENANT_DOC_TYPES = ["Bank statements", "Business tax returns", "Personal tax returns", "Profit & loss / financial statements", "Business formation / license", "Photo ID", "Other"];
+  const TENANT_LIMITS = { files: 10, each: 10 * 1024 * 1024, total: 25 * 1024 * 1024, ext: /\.(pdf|jpe?g|png|heic|docx?|xlsx?|csv)$/i };
+  const leaseOpen = (l) => !!l && l.deal === "Lease" && !l.offMarket && /^Available/i.test(l.status || "");
+  const TP = { files: [] };
+  function renderTenant(id) {
+    const l = byId(id), open = LISTINGS.filter(leaseOpen), sel = leaseOpen(l) ? l : null;
+    TP.files = [];
+    const opts = open.map((x) => `<option value="${esc(x.id)}"${sel && sel.id === x.id ? " selected" : ""}>${esc(x.title)} · ${esc(x.city)}</option>`).join("");
+    return pageHead("Tenant Portal", "Apply to lease a space with The Outlier Group. Complete the application, then upload your financial documents securely. An advisor will follow up within one business day.", "Tenant Portal") + `
+    <section class="section tight-top"><div class="wrap">
+      <ol class="tp-steps" data-reveal><li><b>1</b><span>Complete the application</span></li><li><b>2</b><span>Upload financial documents</span></li><li><b>3</b><span>Our team reviews and follows up</span></li></ol>
+      ${sel ? `<div class="tp-for" data-reveal><span>Applying for</span><b>${esc(sel.title)}</b><span>${esc([sel.address, sel.city].filter(Boolean).join(", "))}</span><a href="#property-${esc(sel.id)}">View property</a></div>` : ""}
+      <div class="tp-grid">
+        <div class="tp-main">
+          <section class="panel tp-panel" id="tpApp" data-reveal>
+            <h2 class="display-3">1. Tenant application</h2>
+            <p class="muted">About 10 minutes. ${sel ? `Under <b>Property Location</b>, enter <b>${esc(sel.title)}</b>.` : "Under <b>Property Location</b>, enter the property you're applying for."}</p>
+            <div class="tp-frame"><iframe src="${TENANT_FORM}?embedded=true" title="Tenant application form" loading="lazy">Loading…</iframe></div>
+            <p class="tp-alt"><a href="${TENANT_FORM}" target="_blank" rel="noopener">Open the application in a new tab ${ICON.arrow}</a></p>
+          </section>
+          <form class="panel form-grid tp-panel" id="tenantDocs" novalidate data-reveal>
+            <h2 class="display-3">2. Upload financial documents</h2>
+            <p class="muted">Upload the documents your advisor asked for. They go straight to a private folder that only The Outlier Group's leasing team can open.</p>
+            <div class="row"><div class="field"><label for="tName">Full name</label><input class="input" id="tName" name="name" required autocomplete="name"></div>
+            <div class="field"><label for="tEmail">Email</label><input class="input" id="tEmail" name="email" type="email" required autocomplete="email"></div></div>
+            <div class="row"><div class="field"><label for="tPhone">Phone</label><input class="input" id="tPhone" name="phone" type="tel" autocomplete="tel"></div>
+            <div class="field"><label for="tBiz">Legal business name</label><input class="input" id="tBiz" name="business" autocomplete="organization"></div></div>
+            <div class="field"><label for="tProp">Property</label><select class="input" id="tProp" name="property" required><option value="">Select the property</option>${opts}<option value="other">Other / not listed</option></select></div>
+            <label class="tp-drop" id="tpDrop"><input type="file" id="tFiles" multiple accept=".pdf,.jpg,.jpeg,.png,.heic,.doc,.docx,.xls,.xlsx,.csv"><span class="tp-drop-main">${ICON.lock} Choose files or drop them here</span><span class="tp-drop-sub">PDF, image, Word or Excel · up to ${TENANT_LIMITS.files} files · 10 MB each · 25 MB total</span></label>
+            <ul class="tp-files" id="tpFiles" aria-live="polite"></ul>
+            <label class="tp-consent"><input type="checkbox" id="tConsent" name="consent" required> <span>I confirm I'm authorized to share these documents and I allow The Outlier Group to review them for this lease application.</span></label>
+            <button class="btn primary block" type="submit">Upload Documents Securely ${ICON.arrow}</button>
+            <div class="form-msg" id="tenantMsg" hidden></div>
+          </form>
+        </div>
+        <aside class="tp-side">
+          <div class="panel" data-reveal><h3>Documents to have ready</h3><ul class="tp-check">
+            <li>Last 3–6 months of business bank statements</li><li>Last 2 years of business tax returns</li><li>Personal tax returns for each guarantor</li><li>Current profit &amp; loss statement and balance sheet</li><li>Articles of organization or business license</li><li>Government-issued photo ID</li></ul>
+            <p class="muted small">Your advisor will tell you if anything else is needed for this space.</p></div>
+          <div class="panel" data-reveal><h3>${ICON.lock} How your documents are protected</h3><ul class="tp-check">
+            <li>Saved in a private, access-restricted company folder</li><li>Never published on the website and never sent as email attachments</li><li>Only The Outlier Group's leasing team can open them</li><li>Not saved in your browser after you leave this page</li></ul></div>
+          <div class="panel" data-reveal><h3>Questions?</h3><p class="muted">Call <a href="tel:${esc(COMPANY.phone)}">${esc(COMPANY.phone)}</a> or email <a href="mailto:${esc(COMPANY.email)}">${esc(COMPANY.email)}</a>.</p></div>
+        </aside>
+      </div>
+    </div></section>`;
+  }
+  function wireTenant() {
+    const f = $("#tenantDocs"); if (!f) return;
+    const input = $("#tFiles"), list = $("#tpFiles"), drop = $("#tpDrop"), msg = $("#tenantMsg");
+    const size = (n) => n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+    const guess = (n) => /bank|statement/i.test(n) ? TENANT_DOC_TYPES[0] : /tax|1120|1065|schedule\s*c/i.test(n) ? TENANT_DOC_TYPES[1] : /p&?l|profit|balance|financial/i.test(n) ? TENANT_DOC_TYPES[3] : /license|articles|formation|ein|sunbiz/i.test(n) ? TENANT_DOC_TYPES[4] : /\bid\b|passport|driver/i.test(n) ? TENANT_DOC_TYPES[5] : "";
+    const show = (text, ok) => { msg.hidden = false; msg.className = "form-msg " + (ok ? "ok" : "err"); msg.textContent = text; };
+    const draw = () => {
+      list.innerHTML = TP.files.map((x, i) => `<li><span class="tp-fname">${esc(x.file.name)}</span><span class="tp-fsize">${size(x.file.size)}</span>
+        <select class="input" data-i="${i}" aria-label="Document type for ${esc(x.file.name)}"><option value="">Document type</option>${TENANT_DOC_TYPES.map((t) => `<option${t === x.docType ? " selected" : ""}>${esc(t)}</option>`).join("")}</select>
+        <button type="button" class="tp-rm" data-rm="${i}">Remove</button></li>`).join("");
+      $$("select[data-i]", list).forEach((s) => s.addEventListener("change", () => { TP.files[+s.dataset.i].docType = s.value; }));
+      $$("[data-rm]", list).forEach((b) => b.addEventListener("click", () => { TP.files.splice(+b.dataset.rm, 1); draw(); }));
+    };
+    const add = (fl) => {
+      const bad = [];
+      [...(fl || [])].forEach((file) => {
+        if (!TENANT_LIMITS.ext.test(file.name)) bad.push(file.name + " (file type not accepted)");
+        else if (file.size > TENANT_LIMITS.each) bad.push(file.name + " (over 10 MB)");
+        else if (TP.files.length >= TENANT_LIMITS.files) bad.push(file.name + " (10 files at most)");
+        else if (TP.files.reduce((t, x) => t + x.file.size, 0) + file.size > TENANT_LIMITS.total) bad.push(file.name + " (25 MB total limit)");
+        else if (!TP.files.some((x) => x.file.name === file.name && x.file.size === file.size)) TP.files.push({ file, docType: guess(file.name) });
+      });
+      draw();
+      if (bad.length) show("Not added: " + bad.join("; ") + ".", false); else msg.hidden = true;
+    };
+    input.addEventListener("change", () => { add(input.files); input.value = ""; });
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+    drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); add(e.dataTransfer && e.dataTransfer.files); });
+    const read = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).replace(/^data:[^,]*,/, "")); r.onerror = () => rej(r.error); r.readAsDataURL(file); });
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const v = Object.fromEntries(new FormData(f).entries());
+      const need = [];
+      if (!String(v.name || "").trim()) need.push("full name");
+      if (!/^\S+@\S+\.\S+$/.test(String(v.email || "").trim())) need.push("email");
+      if (!v.property) need.push("property");
+      if (!TP.files.length) need.push("at least one document");
+      if (TP.files.some((x) => !x.docType)) need.push("a document type for each file");
+      if (!$("#tConsent").checked) need.push("confirmation checkbox");
+      if (need.length) { show("Please add: " + need.join(", ") + ".", false); return; }
+      const btn = f.querySelector("button[type=submit]"), label = btn.innerHTML; btn.disabled = true; btn.textContent = "Uploading securely…";
+      try {
+        const l = byId(v.property), files = [];
+        for (const x of TP.files) files.push({ name: x.file.name, type: x.file.type || "", size: x.file.size, docType: x.docType, data: await read(x.file) });
+        const r = await post({ type: "tenant_docs", applicant: { name: v.name, email: v.email, phone: v.phone || "", business: v.business || "" },
+          property: { id: l ? l.id : "other", title: l ? l.title : "Other / not listed", address: l ? [l.address, l.city].filter(Boolean).join(", ") : "" },
+          agentEmail: l ? agentOf(l).email : "", files });
+        files.length = 0;
+        if (r.ok && r.confirmed && r.data && r.data.status === "ok") { show(`Thank you — ${r.data.saved} document${r.data.saved === 1 ? "" : "s"} received securely (reference ${r.data.ref}). A confirmation email is on its way and an advisor will follow up within one business day.`, true); TP.files = []; draw(); f.reset(); }
+        else if (r.ok && !r.confirmed && !(r.data && r.data.status)) { show("Your documents were sent. If you don't get a confirmation email within 15 minutes, please call " + COMPANY.phone + ".", true); TP.files = []; draw(); f.reset(); }
+        else show((r.data && r.data.message) || `We couldn't upload your documents. Please try again, or call ${COMPANY.phone}.`, false);
+      } catch (err) { show(`We couldn't upload your documents. Please try again, or call ${COMPANY.phone}.`, false); }
+      btn.disabled = false; btn.innerHTML = label;
+    });
+  }
+
   /* ── Portfolio ── */
   const PF = { q: "", status: "all", deal: "", type: "", region: "", city: "", sort: "status", view: "grid" };
   /* ── Location filter: region (North / South / East / West) → city. Used by Portfolio + Client Portal ── */
@@ -809,7 +918,7 @@
           <p class="addr">${ICON.pin}<span>${esc(full)}</span></p>
           ${l.headline ? `<p class="headline">${esc(l.headline)}${l.subhead ? " — " + esc(l.subhead) : ""}</p>` : ""}
         </div>
-        <div class="head-actions rise d1">${l.flyer ? `<a class="btn outline" href="${esc(l.flyer)}" target="_blank" rel="noopener" data-brochure="${l.id}" data-flyer="1">Download Property Flyer ${ICON.arrow}</a>` : `<button class="btn outline" type="button" data-brochure="${l.id}">Download Property Brochure ${ICON.arrow}</button>`}<a class="btn outline" href="#calculator-${l.id}">Run the Numbers</a><a class="btn primary" href="#inquire" id="jumpInquire">Inquire About This Property ${ICON.arrow}</a></div>
+        <div class="head-actions rise d1">${l.flyer ? `<a class="btn outline" href="${esc(l.flyer)}" target="_blank" rel="noopener" data-brochure="${l.id}" data-flyer="1">Download Property Flyer ${ICON.arrow}</a>` : `<button class="btn outline" type="button" data-brochure="${l.id}">Download Property Brochure ${ICON.arrow}</button>`}${leaseOpen(l) ? `<a class="btn outline" href="#tenant-portal-${l.id}">Apply to Lease ${ICON.arrow}</a>` : ""}<a class="btn outline" href="#calculator-${l.id}">Run the Numbers</a><a class="btn primary" href="#inquire" id="jumpInquire">Inquire About This Property ${ICON.arrow}</a></div>
       </div>
       ${gallery(l, false)}
       <div class="prop-layout">
@@ -1017,7 +1126,7 @@
     return pageHead("Client Portal", "A personalized property search built around confidential off-market opportunities. Tell us who you are and what you need, press Find My Opportunities, and we'll show matching off-market properties first, followed by on-market options from our portfolio.") + `
     <section class="section tight-top"><div class="wrap">
       <div class="portal-scope" data-reveal><span class="pill s-off-market">${ICON.lock} Off-market first</span><p><b>${OFF_MARKET_LISTINGS().length} confidential off-market opportunities</b> are available only through the Client Portal. Their details are released after our team approves your signed NDA. Matching on-market properties are shown after them and don't require an NDA. For the complete inventory, see <a href="#portfolio">Our Portfolio</a>.</p></div>
-      <nav class="portal-tabs" aria-label="Client Portal"><a href="#portal" aria-current="page">Find Opportunities</a><a href="#calculator">Investment Calculator</a></nav>
+      <nav class="portal-tabs" aria-label="Client Portal"><a href="#portal" aria-current="page">Find Opportunities</a><a href="#calculator">Investment Calculator</a><a href="#tenant-portal">Tenant Portal</a></nav>
       <ol class="stepper" aria-label="How the portal works"><li class="on"><b>1</b>Your needs</li><li class="on"><b>2</b>Requirements</li><li id="stepResults"><b>3</b>Matches: off-market first</li><li><b>4</b>Request access (NDA for off-market)</li></ol>
 
       <div class="portal-layout">
@@ -1338,7 +1447,7 @@
     const inp = (k, label, hint, unit) => `<div class="field"><label for="c_${k}">${label}${hint ? ` <span class="tip" tabindex="0" data-tip="${esc(hint)}">?</span>` : ""}</label><div class="affix ${unit === "$" ? "pre" : "post"}"><span>${unit}</span><input class="input" id="c_${k}" data-c="${k}" inputmode="decimal" value="${unit === "$" ? Math.round(V[k]).toLocaleString("en-US") : V[k]}"></div></div>`;
     return pageHead("Outlier Investment Calculator", "Quickly calculate Net Operating Income (NOI) and Capitalization Rate (CAP Rate), then add financing to see total investment, cash flow, ROI, and projected returns.") + `
     <section class="section tight-top"><div class="wrap">
-      <nav class="portal-tabs" aria-label="Client Portal"><a href="#portal">Find Opportunities</a><a href="#calculator" aria-current="page">Investment Calculator</a></nav>
+      <nav class="portal-tabs" aria-label="Client Portal"><a href="#portal">Find Opportunities</a><a href="#calculator" aria-current="page">Investment Calculator</a><a href="#tenant-portal">Tenant Portal</a></nav>
       ${l ? `<div class="calc-for panel">${imgTag(l.photos && l.photos[0], "")}<div><p class="kicker">Running the numbers for</p><h2>${esc(l.title)}</h2><p class="muted small">${esc(l.offMarket ? l.region || "" : l.city)} · ${esc(l.space || "")} · Prefilled from published terms where available. Replace any value with your own assumptions.</p></div><a class="btn outline small" href="#property-${l.id}">Back to property</a></div>` : `<p class="muted calc-intro">The figures below are an example. Replace them with your own numbers and results update as you type.</p>`}
       <div class="calc-layout">
         <form class="panel calc-form" id="calcForm" novalidate>
@@ -1512,7 +1621,7 @@
       return d.textContent.replace(/\s+/g, " ").trim();
     } catch (e) { return ""; }
   };
-  const ALIASES = { about: "why-outlier", team: "our-team", ourteam: "our-team", whyoutlier: "why-outlier", outlierportfolio: "portfolio", listings: "portfolio", articles: "insights", "market-insights": "insights", submit: "submit-property", privacypolicy: "privacy", oic: "calculator", "investment-calculator": "calculator",
+  const ALIASES = { about: "why-outlier", team: "our-team", ourteam: "our-team", whyoutlier: "why-outlier", outlierportfolio: "portfolio", listings: "portfolio", articles: "insights", "market-insights": "insights", submit: "submit-property", tenant: "tenant-portal", apply: "tenant-portal", "tenant-application": "tenant-portal", tenantportal: "tenant-portal", privacypolicy: "privacy", oic: "calculator", "investment-calculator": "calculator",
     macautrey: "team-mac-autrey", lisaromanfoss: "team-lisa-roman-foss", lisafoss: "team-lisa-roman-foss", vanessaautrey: "team-vanessa-autrey", denzylleibasco: "team-den-ibasco", natashasantillana: "team-natasha-santillana", erikasmith: "team-erika-smith", hollypicano: "team-holly-picano", joyceteixeira: "team-joyce-teixeira", jasonclemmey: "team-jason-clemmey", monsierivera: "team-monsie-rivera", laurielane: "team-laurie-lane", nathaliakeown: "team-nathalia-keown", schuylermoffat: "team-schuyler-moffat", christopherdelcore: "team-christopher-delcore" };
 
   /* Approval link from Natasha's email: #access-<NDA ref>-<token> */
@@ -1548,6 +1657,9 @@
     } else if (h.startsWith("calculator-")) {
       const l = byId(h.slice(11));
       app.innerHTML = renderCalc(l ? l.id : null); document.title = "Investment Calculator" + (l ? " · " + l.title : "") + " | The Outlier Group"; setActive("portal"); wireCalc();
+    } else if (h === "tenant-portal" || h.startsWith("tenant-portal-")) {
+      const id = h.slice(14), l = byId(id);
+      app.innerHTML = renderTenant(id); document.title = "Tenant Portal" + (leaseOpen(l) ? " · " + l.title : "") + " | The Outlier Group"; setActive("portal"); wireTenant();
     } else if (h.startsWith("property-")) {
       const id = h.slice(9), l = byId(id);
       app.innerHTML = renderProperty(id);
