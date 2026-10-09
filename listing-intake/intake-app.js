@@ -85,7 +85,7 @@ class Component extends DCLogic {
   showing: "", signage: "Yes", confidential: "No", channels: "Website, Crexi, LoopNet, email blast", agent: "Laurie Lane", status: "Available",
   headline: "Corner Retail Space on Central Avenue", idealUses: "coffee, retail, or service users",
   description: "A corner retail suite on Central Avenue with strong visibility, pylon signage and on-site parking, a short walk from the Grand Central District.",
-  highlights: "Hard corner with pylon signage\nFront and rear entrances\n12 on-site parking spaces\nWalkable to the Grand Central District", driveLink: "", docLinks: "", notes: ""
+  highlights: "Hard corner with pylon signage\nFront and rear entrances\n12 on-site parking spaces\nWalkable to the Grand Central District", driveLink: "", docLinks: "", rentRollLink: "", notes: ""
 };
   }
   runAuto(from, sim) {
@@ -185,7 +185,8 @@ class Component extends DCLogic {
         ["hoa", "HOA / association fees", { vis: "int", onlyIf: "sale", w: 3, more: 1 }],
         ["tenants", "Existing tenants?", { vis: "int", kind: YN, onlyIf: "sale", shared: 1, w: 3, more: 1 }],
         ["leaseIncome", "Existing leases or income?", { vis: "int", kind: YN, onlyIf: "sale", shared: 1, w: 3, more: 1 }],
-        ["rentRoll", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", kind: A, ph: "Paste the Google Drive link, or upload the file below", onlyIf: "sale", shared: 1, w: 6, upload: "Rent Roll" }]
+        ["rentRollLink", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", ph: "Paste the Google Drive / Dropbox link to the rent roll", onlyIf: "sale", shared: 1, w: 6, upload: "Rent Roll", check: (x) => String(x || "").split(/[\s,]+/).filter(Boolean).some((l) => !/^https:\/\/\S+$/i.test(l)) ? "Paste the full link, starting with https://" : "" }],
+        ["rentRoll", "Tenant Grid / Rent Roll Notes", { vis: "int", kind: A, ph: "Notes, or paste the tenant grid (optional)", onlyIf: "sale", shared: 1, w: 6 }]
       ] },
       { title: "Lease", short: "Lease", fields: [
         ["forLease", "For lease?", { vis: "web", kind: YN, req: 1, w: 6 }],
@@ -203,7 +204,8 @@ class Component extends DCLogic {
         ["ti", "TI allowance", { vis: "int", onlyIf: "lease", w: 3, more: 1 }],
         ["tenants", "Existing tenants?", { vis: "int", kind: YN, onlyIf: "lease", shared: 1, w: 3, more: 1 }],
         ["leaseIncome", "Existing leases or income?", { vis: "int", kind: YN, onlyIf: "lease", shared: 1, w: 3, more: 1 }],
-        ["rentRoll", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", kind: A, ph: "Paste the Google Drive link, or upload the file below", onlyIf: "lease", shared: 1, w: 6, upload: "Rent Roll" }]
+        ["rentRollLink", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", ph: "Paste the Google Drive / Dropbox link to the rent roll", onlyIf: "lease", shared: 1, w: 6, upload: "Rent Roll", check: (x) => String(x || "").split(/[\s,]+/).filter(Boolean).some((l) => !/^https:\/\/\S+$/i.test(l)) ? "Paste the full link, starting with https://" : "" }],
+        ["rentRoll", "Tenant Grid / Rent Roll Notes", { vis: "int", kind: A, ph: "Notes, or paste the tenant grid (optional)", onlyIf: "lease", shared: 1, w: 6 }]
       ] },
       { title: "Compliance", short: "Compliance", fields: [
         ["environmental", "Environmental concerns", { vis: "int", kind: A, ph: "None known, or describe", w: 6 }],
@@ -254,6 +256,7 @@ class Component extends DCLogic {
     if (!sale && !lease) issuesRaw.push({ step: 4, text: "Choose For Sale, For Lease, or both" });
     const street = String(v.address || "").replace(/^\d+\s*/, "").split(/\s+/)[0];
     if (conf && street && new RegExp("\\b" + street + "\\b", "i").test(v.description || "")) issuesRaw.push({ step: 8, text: "Description names the street (\"" + street + "\") on a confidential listing", warn: 1 });
+    if (String(v.rentRollLink || "").split(/[\s,]+/).filter(Boolean).some((l) => !/^https:\/\/\S+$/i.test(l))) issuesRaw.push({ step: lease && !sale ? 5 : 4, text: "Rent Roll Link must be a full link starting with https://" });
     if (String(v.docLinks || "").split(/\n+/).map((l) => l.trim()).filter(Boolean).some((l) => !/^https:\/\/\S+$/i.test(l))) issuesRaw.push({ step: 7, text: "Photo & Document Links: each line should be one full https:// link", warn: 1 });
     if (!(S.files || []).some((f) => f.kind === "image") && !conf && /Available|Pending/.test(v.status || "")) issuesRaw.push({ step: 7, text: "Add at least one photo for the website listing", warn: 1 });
     let totalReq = 0, doneReq = 0;
