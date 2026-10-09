@@ -1294,3 +1294,7 @@ body.is-home .site-header .brand { visibility: hidden; }
 @media (max-width: 900px) { .tp-frame iframe { height: 1700px; } }
 @media (max-width: 560px) { .tp-files li { grid-template-columns: minmax(0, 1fr) auto; } .tp-files li select { grid-column: 1 / -1; } }
 .tp-alt a { display: inline-flex; align-items: center; gap: 6px; } .tp-alt svg, .tp-for svg { width: 14px; height: 14px; flex: none; }
+.tp-link { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; padding: 16px 20px; border: 1px solid var(--ink); border-radius: 10px; color: var(--ink); text-decoration: none; font-family: var(--ui); transition: background .2s, color .2s; }
+.tp-link b { display: block; font-weight: 600; } .tp-link span span { display: block; font-size: .8rem; color: var(--muted); }
+.tp-link-go { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; letter-spacing: .06em; white-space: nowrap; } .tp-link-go svg { width: 14px; height: 14px; }
+.tp-link:hover { background: var(--ink); color: var(--bg); } .tp-link:hover span span { color: inherit; opacity: .75; }

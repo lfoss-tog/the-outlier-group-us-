@@ -693,8 +693,7 @@
           <section class="tp-panel" id="tpApp" data-reveal>
             <h2 class="display-3">1. Tenant application</h2>
             <p class="muted">About 10 minutes. ${sel ? `Under <b>Property Location</b>, enter <b>${esc(sel.title)}</b>.` : "Under <b>Property Location</b>, enter the property you're applying for."}</p>
-            <div class="tp-frame"><iframe src="${TENANT_FORM}?embedded=true" title="Tenant application form" loading="lazy">Loading…</iframe></div>
-            <p class="tp-alt"><a href="${TENANT_FORM}" target="_blank" rel="noopener">Open the application in a new tab ${ICON.arrow}</a></p>
+            <a class="tp-link" href="${TENANT_FORM}" target="_blank" rel="noopener"><span><b>Tenant Application</b><span>Google Form · opens in a new tab</span></span><span class="tp-link-go">Open ${ICON.arrow}</span></a>
           </section>
           <form class="form-grid tp-panel" id="tenantDocs" novalidate data-reveal>
             <h2 class="display-3">2. Upload financial documents</h2>
