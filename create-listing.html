@@ -63,6 +63,11 @@
 <sc-if value="{{f.isSelect}}" hint-placeholder-val="{{false}}"><select class="in" id="{{f.id}}" value="{{f.selVal}}" onChange="{{f.set}}" style="{{f.inStyle}}"><sc-for list="{{f.opts}}" as="o" hint-placeholder-count="4"><option>{{o}}</option></sc-for></select></sc-if>
 <sc-if value="{{f.isYN}}" hint-placeholder-val="{{false}}"><div class="seg" role="group" aria-label="{{f.label}}"><button type="button" id="{{f.id}}" onClick="{{f.yes}}" style="{{f.yesStyle}}">Yes</button><button type="button" onClick="{{f.no}}" style="{{f.noStyle}}">No</button></div></sc-if>
 <sc-if value="{{f.hasHint}}" hint-placeholder-val="{{false}}"><p style="{{f.hintStyle}}">{{f.hint}}</p></sc-if>
+<sc-if value="{{f.hasUpload}}" hint-placeholder-val="{{false}}"><div class="li-fup">
+<label class="li-fupbtn"><input type="file" multiple="multiple" accept=".pdf,.xls,.xlsx,.csv,.doc,.docx,image/*" onChange="{{f.pickUp}}" aria-label="{{f.upLabel}}"><span aria-hidden="true">+</span>{{f.upLabel}}</label>
+<span class="li-fupnote">PDF, Excel, CSV or Word · up to 25 MB · private (never on the website)</span>
+<sc-if value="{{f.hasUpFiles}}" hint-placeholder-val="{{false}}"><ul class="li-fuplist"><sc-for list="{{f.upFiles}}" as="u" hint-placeholder-count="1"><li><span class="li-fupname">{{u.name}}</span><span class="li-fupsize">{{u.size}}</span><button type="button" class="li-fuprm" onClick="{{u.remove}}">Remove</button></li></sc-for></ul></sc-if>
+</div></sc-if>
 </div>
 </sc-for>
 </div>
@@ -83,6 +88,11 @@
 <sc-if value="{{f.isSelect}}" hint-placeholder-val="{{false}}"><select class="in" id="{{f.id}}" value="{{f.selVal}}" onChange="{{f.set}}" style="{{f.inStyle}}"><sc-for list="{{f.opts}}" as="o" hint-placeholder-count="4"><option>{{o}}</option></sc-for></select></sc-if>
 <sc-if value="{{f.isYN}}" hint-placeholder-val="{{false}}"><div class="seg" role="group" aria-label="{{f.label}}"><button type="button" id="{{f.id}}" onClick="{{f.yes}}" style="{{f.yesStyle}}">Yes</button><button type="button" onClick="{{f.no}}" style="{{f.noStyle}}">No</button></div></sc-if>
 <sc-if value="{{f.hasHint}}" hint-placeholder-val="{{false}}"><p style="{{f.hintStyle}}">{{f.hint}}</p></sc-if>
+<sc-if value="{{f.hasUpload}}" hint-placeholder-val="{{false}}"><div class="li-fup">
+<label class="li-fupbtn"><input type="file" multiple="multiple" accept=".pdf,.xls,.xlsx,.csv,.doc,.docx,image/*" onChange="{{f.pickUp}}" aria-label="{{f.upLabel}}"><span aria-hidden="true">+</span>{{f.upLabel}}</label>
+<span class="li-fupnote">PDF, Excel, CSV or Word · up to 25 MB · private (never on the website)</span>
+<sc-if value="{{f.hasUpFiles}}" hint-placeholder-val="{{false}}"><ul class="li-fuplist"><sc-for list="{{f.upFiles}}" as="u" hint-placeholder-count="1"><li><span class="li-fupname">{{u.name}}</span><span class="li-fupsize">{{u.size}}</span><button type="button" class="li-fuprm" onClick="{{u.remove}}">Remove</button></li></sc-for></ul></sc-if>
+</div></sc-if>
 </div>
 </sc-for>
 </div>
@@ -95,6 +105,18 @@
 <input type="file" multiple="multiple" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx" onChange="{{pickFiles}}" style="position: absolute; width: 1px; height: 1px; opacity: 0">
 <span style="font-size: 16px">Drop photos and documents, or <u>browse</u></span>
 </label>
+
+<sc-if value="{{hasUpFields}}" hint-placeholder-val="{{true}}">
+<div class="li-grid li-links">
+<sc-for list="{{upFields}}" as="f" hint-placeholder-count="1">
+<div class="f" style="{{f.span}}">
+<label class="lbl" for="{{f.id}}">{{f.label}}</label>
+<textarea class="in" id="{{f.id}}" value="{{f.val}}" placeholder="{{f.ph}}" onChange="{{f.set}}" style="{{f.inStyle}}"></textarea>
+<sc-if value="{{f.hasHint}}" hint-placeholder-val="{{false}}"><p style="{{f.hintStyle}}">{{f.hint}}</p></sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
 
 <sc-if value="{{hasPhotos}}" hint-placeholder-val="{{true}}">
 <section class="li-files">

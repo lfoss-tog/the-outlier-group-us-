@@ -57,15 +57,15 @@ class Component extends DCLogic {
     if (files.some((f) => f.kind === "doc" && f.category === "Site Plan / Survey")) vals.sitePlan = "Yes";
     this.setState(Object.assign({ files, vals }, extra || {}));
   }
-  addFiles(list) {
+  addFiles(list, forceCat) {
     const arr = Array.prototype.slice.call(list || []), add = [], bad = [];
     arr.forEach((f) => {
       const ext = (f.name.split(".").pop() || "").toLowerCase();
       if (/^(heic|heif)$/.test(ext)) { bad.push(f.name + " (HEIC: export as JPG first)"); return; }
       if (f.size > 25 * 1024 * 1024) { bad.push(f.name + " (over 25 MB)"); return; }
-      const img = /^image\//.test(f.type || "") || /^(jpe?g|png|webp|gif)$/.test(ext);
+      const img = !forceCat && (/^image\//.test(f.type || "") || /^(jpe?g|png|webp|gif)$/.test(ext));
       let url = ""; if (img) { try { url = URL.createObjectURL(f); } catch (e) {} }
-      const cat = img ? "" : Component.guessCat(f.name);
+      const cat = forceCat || (img ? "" : Component.guessCat(f.name));
       add.push({ id: "u" + Date.now() + Math.random().toString(36).slice(2, 6), kind: img ? "image" : "doc", name: f.name, size: f.size, url, category: cat, web: cat === "Brochure / Flyer" || cat === "Floor Plan", file: f });
     });
     if (add.length) this.setFiles(this.state.files.concat(add), { log: this.addLog(add.length + (add.length === 1 ? " file uploaded" : " files uploaded")) });
@@ -85,7 +85,7 @@ class Component extends DCLogic {
   showing: "", signage: "Yes", confidential: "No", channels: "Website, Crexi, LoopNet, email blast", agent: "Laurie Lane", status: "Available",
   headline: "Corner Retail Space on Central Avenue", idealUses: "coffee, retail, or service users",
   description: "A corner retail suite on Central Avenue with strong visibility, pylon signage and on-site parking, a short walk from the Grand Central District.",
-  highlights: "Hard corner with pylon signage\nFront and rear entrances\n12 on-site parking spaces\nWalkable to the Grand Central District", driveLink: "", notes: ""
+  highlights: "Hard corner with pylon signage\nFront and rear entrances\n12 on-site parking spaces\nWalkable to the Grand Central District", driveLink: "", docLinks: "", notes: ""
 };
   }
   runAuto(from, sim) {
@@ -185,7 +185,7 @@ class Component extends DCLogic {
         ["hoa", "HOA / association fees", { vis: "int", onlyIf: "sale", w: 3, more: 1 }],
         ["tenants", "Existing tenants?", { vis: "int", kind: YN, onlyIf: "sale", shared: 1, w: 3, more: 1 }],
         ["leaseIncome", "Existing leases or income?", { vis: "int", kind: YN, onlyIf: "sale", shared: 1, w: 3, more: 1 }],
-        ["rentRoll", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", kind: A, ph: "Paste the Google Drive link, or upload the file under Photos & Documents", onlyIf: "sale", shared: 1, w: 6, more: 1 }]
+        ["rentRoll", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", kind: A, ph: "Paste the Google Drive link, or upload the file below", onlyIf: "sale", shared: 1, w: 6, upload: "Rent Roll" }]
       ] },
       { title: "Lease", short: "Lease", fields: [
         ["forLease", "For lease?", { vis: "web", kind: YN, req: 1, w: 6 }],
@@ -203,7 +203,7 @@ class Component extends DCLogic {
         ["ti", "TI allowance", { vis: "int", onlyIf: "lease", w: 3, more: 1 }],
         ["tenants", "Existing tenants?", { vis: "int", kind: YN, onlyIf: "lease", shared: 1, w: 3, more: 1 }],
         ["leaseIncome", "Existing leases or income?", { vis: "int", kind: YN, onlyIf: "lease", shared: 1, w: 3, more: 1 }],
-        ["rentRoll", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", kind: A, ph: "Paste the Google Drive link, or upload the file under Photos & Documents", onlyIf: "lease", shared: 1, w: 6, more: 1 }]
+        ["rentRoll", "Tenant Grid / Rent Roll (Drive Link or File)", { vis: "int", kind: A, ph: "Paste the Google Drive link, or upload the file below", onlyIf: "lease", shared: 1, w: 6, upload: "Rent Roll" }]
       ] },
       { title: "Compliance", short: "Compliance", fields: [
         ["environmental", "Environmental concerns", { vis: "int", kind: A, ph: "None known, or describe", w: 6 }],
@@ -215,7 +215,9 @@ class Component extends DCLogic {
         ["floorPlan", "Floor plan available?", { vis: "int", kind: YN, w: 2, more: 1 }],
         ["sitePlan", "Site plan / survey?", { vis: "int", kind: YN, w: 2, more: 1 }]
       ] },
-      { title: "Photos & Documents", short: "Photos & Documents", upload: 1, fields: [] },
+      { title: "Photos & Documents", short: "Photos & Documents", upload: 1, desc: "Upload photos and documents, or paste links to them (Google Drive, Dropbox, OneDrive).", fields: [
+        ["docLinks", "Photo & Document Links", { vis: "int", kind: A, ph: "One link per line, e.g. https://drive.google.com/drive/folders/… (photos, floor plan, rent roll)", w: 6, afterUpload: 1, check: (x) => String(x || "").split(/\n+/).map((l) => l.trim()).filter(Boolean).some((l) => !/^https:\/\/\S+$/i.test(l)) ? "Each line should be one full link starting with https://" : "" }]
+      ] },
       { title: "Marketing", short: "Marketing", fields: [
         ["headline", "Listing Subheader", { vis: "web", req: 1, ph: "A short line with quick context and your strongest point, e.g. 2nd Generation Restaurant Space", w: 6 }],
         ["idealUses", "Ideal Uses", { vis: "web", ph: "e.g. coffee, retail or service users", w: 6 }],
@@ -252,6 +254,7 @@ class Component extends DCLogic {
     if (!sale && !lease) issuesRaw.push({ step: 4, text: "Choose For Sale, For Lease, or both" });
     const street = String(v.address || "").replace(/^\d+\s*/, "").split(/\s+/)[0];
     if (conf && street && new RegExp("\\b" + street + "\\b", "i").test(v.description || "")) issuesRaw.push({ step: 8, text: "Description names the street (\"" + street + "\") on a confidential listing", warn: 1 });
+    if (String(v.docLinks || "").split(/\n+/).map((l) => l.trim()).filter(Boolean).some((l) => !/^https:\/\/\S+$/i.test(l))) issuesRaw.push({ step: 7, text: "Photo & Document Links: each line should be one full https:// link", warn: 1 });
     if (!(S.files || []).some((f) => f.kind === "image") && !conf && /Available|Pending/.test(v.status || "")) issuesRaw.push({ step: 7, text: "Add at least one photo for the website listing", warn: 1 });
     let totalReq = 0, doneReq = 0;
     SECTIONS.forEach((sec, si) => sec.fields.forEach(([key, , fd]) => { if (fd.req && active(fd) && !sharedHidden(si, fd)) { totalReq++; if (!isEmpty(key, fd)) doneReq++; } }));
@@ -276,11 +279,16 @@ class Component extends DCLogic {
         yesStyle: val === "Yes" ? segOn : segOff, noStyle: val === "No" ? segOn : segOff,
         span: "grid-column: span " + (fd.w || 3),
         inStyle: (flag ? "border-color:" + ERR + ";" : "") + (kind === SEL && !fd.noPick && !val ? "color:#8A8782;" : "") + (kind === A ? "min-height:" + (fd.tall ? 168 : 120) + "px;" : ""),
+        hasUpload: !!fd.upload, upLabel: "Upload " + (fd.upload === "Rent Roll" ? "Rent Roll / Tenant Grid" : fd.upload),
+        pickUp: (e) => { this.addFiles(e.target.files, fd.upload); try { e.target.value = ""; } catch (x) {} },
+        upFiles: fd.upload ? (S.files || []).filter((x) => x.kind === "doc" && x.category === fd.upload).map((x) => ({ name: x.name, size: x.size > 1048576 ? (x.size / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(x.size / 1024)) + " KB", remove: () => this.setFiles((this.state.files || []).filter((y) => y.id !== x.id)) })) : [],
+        hasUpFiles: !!fd.upload && (S.files || []).some((x) => x.kind === "doc" && x.category === fd.upload),
         hasHint: !!hint, hint, hintStyle: "margin:0;font-size:13px;color:" + (flag || bad ? ERR : "#6F6C68") };
     };
     const sec = SECTIONS[step - 1];
     const visible = sec ? sec.fields.filter(([, , fd]) => active(fd) && !sharedHidden(step - 1, fd) && !fd.calc) : [];
-    const fields = visible.filter(([, , fd]) => !fd.more).map(mkField);
+    const fields = visible.filter(([, , fd]) => !fd.more && !fd.afterUpload).map(mkField);
+    const upFields = visible.filter(([, , fd]) => fd.afterUpload).map(mkField);
     const moreAll = visible.filter(([, , fd]) => fd.more);
     const moreOpen = !!(S.more || {})[step];
     const moreFields = moreOpen ? moreAll.map(mkField) : [];
@@ -365,7 +373,7 @@ class Component extends DCLogic {
     const fileName = "Listing Intake - " + (v.address || "Property Address") + ".xlsx";
     return {
       step, steps, wfSteps, fields, doneReq, totalReq, pctW: Math.round(totalReq ? doneReq / totalReq * 100 : 0) + "%",
-      isForm: step <= 8, isReview: step === 9, showUpload: !!(sec && sec.upload), secTitle: sec ? sec.title : "Review", secDesc: sec && sec.desc ? sec.desc : "", hasDesc: !!(sec && sec.desc),
+      isForm: step <= 8, isReview: step === 9, showUpload: !!(sec && sec.upload), upFields, hasUpFields: upFields.length > 0, secTitle: sec ? sec.title : "Review", secDesc: sec && sec.desc ? sec.desc : "", hasDesc: !!(sec && sec.desc),
       mobileStep: "Step " + step + " of 9",
       confLine: conf && (step === 1 || step === 7) ? "Confidential listing · the address, photos and pricing are released only under NDA." : "", hasConfLine: conf && (step === 1 || step === 7),
       hasFields: fields.length > 0, moreFields, hasMore: moreAll.length > 0, moreOpen, toggleMore: () => this.setState({ more: Object.assign({}, S.more || {}, { [step]: !moreOpen }) }),
